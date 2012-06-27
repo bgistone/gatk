@@ -1,6 +1,6 @@
 # Load a table into the specified environment.  Make sure that each new table gets a unique name (this allows one to cat a bunch of tables with the same name together and load them into R without each table overwriting the last.
 .gsa.assignGATKTableToEnvironment <- function(tableName, tableHeader, tableRows, tableEnv) {
-    d = data.frame(tableRows, row.names=NULL, stringsAsFactors=FALSE);
+    d = data.frame(t(tableRows), row.names=NULL, stringsAsFactors=FALSE);
     colnames(d) = tableHeader;
     
     for (i in 1:ncol(d)) {
