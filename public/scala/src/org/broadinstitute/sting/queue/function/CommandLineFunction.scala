@@ -32,6 +32,9 @@ import org.broadinstitute.sting.queue.util._
 trait CommandLineFunction extends QFunction with Logging {
   def commandLine: String
 
+  /** Setting the wall time request for drmaa job*/
+  var wallTime: Option[Long] = None
+  
   /** Upper memory limit */
   var memoryLimit: Option[Double] = None
 
@@ -63,6 +66,9 @@ trait CommandLineFunction extends QFunction with Logging {
     super.copySettingsTo(function)
     function match {
       case commandLineFunction: CommandLineFunction =>
+        if(commandLineFunction.wallTime.isEmpty)
+          commandLineFunction.wallTime = this.wallTime
+        
         if (commandLineFunction.memoryLimit.isEmpty)
           commandLineFunction.memoryLimit = this.memoryLimit
 
@@ -106,6 +112,10 @@ trait CommandLineFunction extends QFunction with Logging {
    * Sets all field values.
    */
   override def freezeFieldValues() {
+   
+    if(wallTime.isEmpty)
+      wallTime = qSettings.jobWalltime
+    
     if (jobQueue == null)
       jobQueue = qSettings.jobQueue
 
