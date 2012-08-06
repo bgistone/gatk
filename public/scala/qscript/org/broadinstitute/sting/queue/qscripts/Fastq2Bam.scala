@@ -8,7 +8,7 @@ import org.broadinstitute.sting.commandline.InvalidArgumentException
 import org.broadinstitute.sting.gatk.walkers.indels.IndelRealigner.ConsensusDeterminationModel
 import org.broadinstitute.sting.queue.extensions.gatk._
 import org.broadinstitute.sting.queue.extensions.picard._
-import org.broadinstitute.sting.queue.function.{ListWriterFunction, SampleFileCreator}
+import org.broadinstitute.sting.queue.function.{ListWriterFunction}
 import org.broadinstitute.sting.queue.util._
 import org.broadinstitute.sting.queue.QScript
 import org.broadinstitute.sting.utils.baq.BAQ.CalculationMode
