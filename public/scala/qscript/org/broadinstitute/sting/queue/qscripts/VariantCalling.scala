@@ -79,6 +79,10 @@ class VariantCalling extends QScript {
 
 	@Argument(doc="An optional list of filter expressions.", shortName="filterExpression", required=false)
 	var filterExpressions: List[String] = Nil
+		
+    @Hidden
+    @Input(doc="How many ways to scatter/gather", fullName="scatter_gather", shortName="sg", required=false)
+    var nContigs: Int = -1	
 
   /****************************************************************************
   * Main script
@@ -88,6 +92,10 @@ class VariantCalling extends QScript {
     		
 	    val bams = QScriptUtils.createSeqFromFile(input)	  
 	  
+	    // By default scatter over the contigs
+        if (nContigs < 0)
+        	nContigs = QScriptUtils.getNumberOfContigs(bams(0))
+	    
 		logger.debug("Running variant calling")
 	        
 	    for (bam: File <- bams){
@@ -145,6 +153,7 @@ class VariantCalling extends QScript {
 
 	case class Genotyper (inBam: File, outVcf: File) extends UnifiedGenotyper with CommandLineGATKArgs {
 
+	    this.scatterCount = nContigs
 	    this.num_threads = nbrOfThreads
 	    
 		this.input_file :+= inBam
@@ -168,6 +177,8 @@ class VariantCalling extends QScript {
 
 	case class filterVariants (inVcf: File, outVcf: File) extends VariantFiltration with CommandLineGATKArgs {
 	
+	    this.scatterCount = nContigs 
+	    
 	    this.num_threads = nbrOfThreads
 	    
 		this.variant = inVcf
@@ -179,6 +190,7 @@ class VariantCalling extends QScript {
 	}
 	
 	case class evaluateVariants (inVcf: File, outVcf: File) extends VariantEval with CommandLineGATKArgs {
+	    
 		this.eval :+= inVcf         
 		this.out = outVcf
 		this.isIntermediate = false         
