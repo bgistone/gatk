@@ -71,7 +71,10 @@ class DataProcessingPipeline extends QScript {
   @Input(doc="Perform validation on the BAM files", fullName="validation", shortName="vs", required=false)
   var validation: Boolean = false
 
+  @Input(doc="Number of threads to use in thread enabled walkers. Default: 1", fullName="nbr_of_threads", shortName="nt", required=false)
+  var nbrOfThreads: Int = 1
 
+  
   /****************************************************************************
   * Hidden Parameters
   ****************************************************************************/
@@ -329,6 +332,9 @@ class DataProcessingPipeline extends QScript {
   }
 
   case class target (inBams: Seq[File], outIntervals: File) extends RealignerTargetCreator with CommandLineGATKArgs {
+    
+    this.num_threads = nbrOfThreads  
+      
     if (cleanModelEnum != ConsensusDeterminationModel.KNOWNS_ONLY)
       this.input_file = inBams
     this.out = outIntervals
@@ -342,6 +348,9 @@ class DataProcessingPipeline extends QScript {
   }
 
   case class clean (inBams: Seq[File], tIntervals: File, outBam: File) extends IndelRealigner with CommandLineGATKArgs {
+    
+    //TODO This should probably be a core job since it does not support parallel exection.  
+      
     this.input_file = inBams
     this.targetIntervals = tIntervals
     this.out = outBam
@@ -357,6 +366,9 @@ class DataProcessingPipeline extends QScript {
   }
 
   case class cov (inBam: File, outRecalFile: File) extends BaseRecalibrator with CommandLineGATKArgs {
+    
+    this.num_threads = nbrOfThreads    
+      
     this.knownSites ++= qscript.dbSNP
     this.covariate ++= Seq("ReadGroupCovariate", "QualityScoreCovariate", "CycleCovariate", "ContextCovariate")
     this.input_file :+= inBam
@@ -370,7 +382,10 @@ class DataProcessingPipeline extends QScript {
     this.jobName = queueLogDir + outRecalFile + ".covariates"
   }
 
-  case class recal (inBam: File, inRecalFile: File, outBam: File) extends PrintReads with CommandLineGATKArgs {
+  case class recal (inBam: File, inRecalFile: File, outBam: File) extends PrintReads with CommandLineGATKArgs {      
+    
+    //TODO This should probably be a core job since it does not support parallel exection.   
+      
     this.input_file :+= inBam
     this.BQSR = inRecalFile
     this.baq = CalculationMode.CALCULATE_AS_NECESSARY
@@ -390,7 +405,8 @@ class DataProcessingPipeline extends QScript {
    ****************************************************************************/
 
 
-  case class dedup (inBam: File, outBam: File, metricsFile: File) extends MarkDuplicates with ExternalCommonArgs {
+  case class dedup (inBam: File, outBam: File, metricsFile: File) extends MarkDuplicates with ExternalCommonArgs {      
+      
     this.input :+= inBam
     this.output = outBam
     this.metrics = metricsFile
