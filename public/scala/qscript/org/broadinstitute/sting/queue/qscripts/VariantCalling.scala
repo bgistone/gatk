@@ -52,6 +52,9 @@ class VariantCalling extends QScript {
   * Optional Parameters
   ****************************************************************************/
 	
+	@Input(doc="Number of threads to use in thread enabled walkers. Default: 1", fullName="nbr_of_threads", shortName="nt", required=false)
+    var nbrOfThreads: Int = 1
+	
 	// TODO Consider if this is really needed or not.
 	@Input(doc="the project name determines the final output (vcf file) base name. Example NA12878 yields NA12878.vcf", fullName="project", shortName="p", required=false)
     var projectName: String = "project"
@@ -142,6 +145,8 @@ class VariantCalling extends QScript {
 
 	case class Genotyper (inBam: File, outVcf: File) extends UnifiedGenotyper with CommandLineGATKArgs {
 
+	    this.num_threads = nbrOfThreads
+	    
 		this.input_file :+= inBam
 		this.out = outVcf
 		
@@ -163,6 +168,8 @@ class VariantCalling extends QScript {
 
 	case class filterVariants (inVcf: File, outVcf: File) extends VariantFiltration with CommandLineGATKArgs {
 	
+	    this.num_threads = nbrOfThreads
+	    
 		this.variant = inVcf
 		this.out = outVcf
 		this.filterName = filterNames
