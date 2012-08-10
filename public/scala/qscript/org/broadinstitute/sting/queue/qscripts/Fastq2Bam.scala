@@ -28,6 +28,9 @@ class Fastq2Bam extends QScript {
   @Input(doc="Directory from which to get the FASTQ files to feed the pipeline. (This will recursively look for directories named Sample* and get the fastq files in those)", fullName="fastq_folder", shortName="f", required=true)
   var fastqFolder: File = _  
   
+  @Input(doc="UPPMAX project id", fullName="project_id", shortName="pid", required=true)
+  var projId: String = _
+
   /****************************************************************************
   * Optional Parameters
   ****************************************************************************/
@@ -125,12 +128,19 @@ class Fastq2Bam extends QScript {
   ****************************************************************************/
 
   trait ExternalCommonArgs extends CommandLineFunction {
-    this.memoryLimit = 4
+    
+    // Fastq2Bam in picard is not threaded, and should run with a low memory footprint,
+    // so running it as a core job will make it run faster on UPPMAX.
+    this.memoryLimit = 3
+    this.jobNativeArgs +:=  "-p node -N 1 -A " + projId
+    
     this.isIntermediate = false
   }
 
   trait SAMargs extends PicardBamFunction with ExternalCommonArgs {
-      this.maxRecordsInRam = 100000
+      // Adding more maxRecordsInRam should make the process faster, since it requires less
+      // disk IO.
+      this.maxRecordsInRam = 300000
   }
   
   case class convertToSam (fastq_1: File, fastq_2: File, outBam: File, sample: String, library: String, platformU: String) extends FastqToSam with ExternalCommonArgs{    
