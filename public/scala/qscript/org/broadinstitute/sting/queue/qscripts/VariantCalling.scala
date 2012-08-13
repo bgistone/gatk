@@ -134,7 +134,7 @@ class VariantCalling extends QScript {
 	
    // General arguments to non-GATK tools
 	trait ExternalCommonArgs extends CommandLineFunction {
-		this.memoryLimit = 4
+		this.memoryLimit = 24
 		this.isIntermediate = true
 	}
 
