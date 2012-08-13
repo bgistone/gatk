@@ -133,7 +133,7 @@ class Fastq2Bam extends QScript {
     // so running it as a core job will make it run faster on UPPMAX.
     this.memoryLimit = 3
 
-    this.jobNativeArgs +:=  "-p node -N 1 -A " + projId
+    this.jobNativeArgs +:=  "-p core -A " + projId
     
     this.isIntermediate = false
   }
