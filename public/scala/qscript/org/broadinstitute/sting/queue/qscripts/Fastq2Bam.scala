@@ -132,6 +132,7 @@ class Fastq2Bam extends QScript {
     // Fastq2Bam in picard is not threaded, and should run with a low memory footprint,
     // so running it as a core job will make it run faster on UPPMAX.
     this.memoryLimit = 3
+
     this.jobNativeArgs +:=  "-p node -N 1 -A " + projId
     
     this.isIntermediate = false
