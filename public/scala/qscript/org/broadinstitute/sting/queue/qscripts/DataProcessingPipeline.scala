@@ -318,7 +318,7 @@ class DataProcessingPipeline extends QScript {
 
   // General arguments to non-GATK tools
   trait ExternalCommonArgs extends CommandLineFunction {
-    this.memoryLimit = 4
+    this.memoryLimit = 24
     this.isIntermediate = true
   }
 
@@ -491,7 +491,6 @@ class DataProcessingPipeline extends QScript {
     @Input(doc="bwa alignment index file") var sai = inSai
     @Output(doc="output aligned bam file") var alignedBam = outBam
     def commandLine = bwaPath + " samse " + reference + " " + sai + " " + bam + " > " + alignedBam
-    this.memoryLimit = 6
     this.analysisName = queueLogDir + outBam + ".bwa_sam_se"
     this.jobName = queueLogDir + outBam + ".bwa_sam_se"
   }
@@ -502,7 +501,6 @@ class DataProcessingPipeline extends QScript {
     @Input(doc="bwa alignment index file for 2nd mating pair") var sai2 = inSai2
     @Output(doc="output aligned bam file") var alignedBam = outBam
     def commandLine = bwaPath + " sampe " + reference + " " + sai1 + " " + sai2 + " " + bam + " " + bam + " > " + alignedBam
-    this.memoryLimit = 6
     this.analysisName = queueLogDir + outBam + ".bwa_sam_pe"
     this.jobName = queueLogDir + outBam + ".bwa_sam_pe"
   }
