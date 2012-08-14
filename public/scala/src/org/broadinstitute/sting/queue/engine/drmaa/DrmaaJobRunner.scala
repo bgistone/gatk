@@ -49,7 +49,7 @@ class DrmaaJobRunner(val session: Session, val function: CommandLineFunction) ex
     session.synchronized {
       val drmaaJob: JobTemplate = session.createJobTemplate
 
-      drmaaJob.setJobName(function.shortDescription.take(jobNameLength))
+      drmaaJob.setJobName(function.jobName)
 
       // Set the current working directory
       drmaaJob.setWorkingDirectory(function.commandDirectory.getPath)
