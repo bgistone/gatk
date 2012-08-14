@@ -157,7 +157,7 @@ class Fastq2Bam extends QScript {
       
     
     this.analysisName = queueLogDir + outBam + "convert_to_sam"
-    this.jobName = queueLogDir + outBam + ".convert_to_sam"
+    this.jobName = "convert_to_sam." + outBam
   }
   
   case class writeList(inBams: Seq[File], outBamList: File) extends ListWriterFunction {
