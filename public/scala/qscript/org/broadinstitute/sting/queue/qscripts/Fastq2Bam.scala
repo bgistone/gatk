@@ -17,6 +17,7 @@ import net.sf.samtools.SAMFileReader
 import java.util.{Queue, LinkedList}
 import org.broadinstitute.sting.queue.QCommandLine
 import org.broadinstitute.sting.queue.engine.QGraph
+import net.sf.samtools.SortOrder
 
 class Fastq2Bam extends QScript {
   qscript =>
@@ -150,7 +151,7 @@ class Fastq2Bam extends QScript {
     this.sequencingCenter = "SNP&SEQ Technology Platform - Uppsala University"
     this.libraryName = library
     this.platformUnit = platformU
-      
+    this.sortOrder = SortOrder.unsorted  
     
     this.analysisName = queueLogDir + outBam + "convert_to_sam"
     this.jobName = queueLogDir + outBam + ".convert_to_sam"
