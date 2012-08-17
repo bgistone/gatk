@@ -111,6 +111,17 @@ class AlignWithBWA extends QScript {
   }
 
   /**
+   * Check that all the files that make up bwa index exist for the reference.
+   */
+  private def checkReferenceIsBwaIndexed(reference: File): Unit = {
+      assert(reference.exists(), "Could not find reference.")
+      
+      val referenceBasePath: String = reference.getAbsolutePath()           
+      for(fileEnding <- Seq("amb", "ann", "bwt", "fai", "pac", "sa")) {
+    	  assert(new File(referenceBasePath + "." + fileEnding).exists(), "Could not find index file with file ending: " + fileEnding)
+      }
+  }
+  /**
    * Accepts a folder and returns a read pair container
    */
   private def getFastqs(folder: File): ReadPairContainer = {
@@ -197,7 +208,8 @@ class AlignWithBWA extends QScript {
     else 
     	throw new Exception("Could not find the report.xml file at the specified location. Specify its location with -r.")
 	
-	// TODO If reference is not indexed is, do this. 
+	// Check that the reference is indexed
+    checkReferenceIsBwaIndexed(reference)
         
     // For each folder in the input list, perform alignment using bwa
     for (folder: File <- fastqs) {
