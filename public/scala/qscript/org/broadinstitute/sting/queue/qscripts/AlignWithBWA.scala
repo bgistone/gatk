@@ -63,6 +63,8 @@ class AlignWithBWA extends QScript {
   @Input(doc="Sequencing platform. Default: ILLUMINA", fullName="platform", shortName="pl", required=false)
   var platform: String = "ILLUMINA"    
 
+  @Input(doc="Sample folder prefix - the prefix of the sample name folder which needs to be removed. Default is: Sample_", fullName="sampleFolderPrefix", shortName="sp", required=false)
+  var sampleFolderPrefix: String = "Sample_"
   
   /****************************************************************************
   * Helper classes and methods
@@ -116,8 +118,8 @@ class AlignWithBWA extends QScript {
       val fastq1: List[File] = folder.listFiles().filter(f => f.getName().contains("_R1_")).toList
       val fastq2: List[File] = folder.listFiles().filter(f => f.getName().contains("_R2_")).toList
       
-      // The sample name is the folder name mins Sample
-      val sampleName: String = folder.getName().replace("Sample", "")
+      // The sample name is the folder name minus sampleFolderPrefix
+      val sampleName: String = folder.getName().replace(sampleFolderPrefix, "")
       
       if(fastq1.size == 1 && fastq2.size == 1)
           ReadPairContainer(fastq1.get(0), fastq2.get(0), sampleName)    
@@ -140,8 +142,8 @@ class AlignWithBWA extends QScript {
    */
   private def getReadGroupInfo(folder: File, report: Elem): String = {     
       
-     // The sample should have the same name as the output folder minus "Sample"
-	 val sampleName = folder.getName().replace("Sample", "")
+     // The sample should have the same name as the output folder minus "sampleFolderPrefix"
+	 val sampleName = folder.getName().replace(sampleFolderPrefix, "")
   
      // Get the sample entry from the xml for the sample currently being worked on.
      val sampleEntry = report.\\("Sample").find(f => f.attribute("Id").get.text.equalsIgnoreCase(sampleName)).get
@@ -199,6 +201,8 @@ class AlignWithBWA extends QScript {
         
     // For each folder in the input list, perform alignment using bwa
     for (folder: File <- fastqs) {
+        
+        logger.debug("Running on folder: " + folder)
         
         // Get the fastq read files
         val sampleFastqs: ReadPairContainer = getFastqs(folder)
