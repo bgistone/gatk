@@ -117,7 +117,7 @@ class AlignWithBWA extends QScript {
       assert(reference.exists(), "Could not find reference.")
       
       val referenceBasePath: String = reference.getAbsolutePath()           
-      for(fileEnding <- Seq("amb", "ann", "bwt", "fai", "pac", "sa")) {
+      for(fileEnding <- Seq("amb", "ann", "bwt", "pac", "sa")) {
     	  assert(new File(referenceBasePath + "." + fileEnding).exists(), "Could not find index file with file ending: " + fileEnding)
       }
   }
