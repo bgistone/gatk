@@ -248,6 +248,9 @@ class AlignWithBWA extends QScript {
   case class bwa_aln_se (fastq1: File, outSai: File) extends CommandLineFunction with ExternalCommonArgs {
     @Input(doc="fastq file to be aligned") var fastq = fastq1
     @Output(doc="output sai file") var sai = outSai
+    
+    this.isIntermediate = true
+    
     def commandLine = bwaPath + " aln -t " + bwaThreads + " -q 5 " + reference + " " + fastq + " > " + sai
     this.analysisName = "bwa_aln_se"
     this.jobName = "bwa_aln_se"
@@ -268,6 +271,10 @@ class AlignWithBWA extends QScript {
     @Input(doc="fastq file to be aligned") var mate1 = fastq
     @Input(doc="bwa alignment index file") var sai = inSai
     @Output(doc="output aligned bam file") var alignedBam = outBam
+    
+    // The output from this is a samfile, which can be removed later
+    this.isIntermediate = true
+    
     def commandLine = bwaPath + " samse " + reference + " " + sai + " " + mate1 + " -r " + readGroupInfo + " > " + alignedBam
     this.analysisName = "bwa_sam_se"
     this.jobName = "bwa_sam_se"
@@ -280,6 +287,10 @@ class AlignWithBWA extends QScript {
     @Input(doc="bwa alignment index file for 1st mating pair") var sai1 = inSai1
     @Input(doc="bwa alignment index file for 2nd mating pair") var sai2 = inSai2
     @Output(doc="output aligned bam file") var alignedBam = outBam
+
+    // The output from this is a samfile, which can be removed later
+    this.isIntermediate = true
+    
     def commandLine = bwaPath + " sampe " + reference + " " + sai1 + " " + sai2 + " " + mate1 + " " + mate2 + " -r " + readGroupInfo + " > " + alignedBam
     this.analysisName = "bwa_sam_pe"
     this.jobName = "bwa_sam_pe"
