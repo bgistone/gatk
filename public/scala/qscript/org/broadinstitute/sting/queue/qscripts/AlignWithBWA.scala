@@ -28,6 +28,10 @@ class AlignWithBWA extends QScript {
   
   @Input(doc="Path to the report file.", fullName="report_path", shortName="r", required=true)
   var reportPath: File = _
+  
+  @Input(doc="UPPMAX project id", fullName="project_id", shortName="pid", required=true)
+  var projId: String = _
+
 
   /****************************************************************************
   * Optional Parameters
@@ -240,6 +244,8 @@ class AlignWithBWA extends QScript {
     
   // General arguments to non-GATK tools
   trait ExternalCommonArgs extends CommandLineFunction {
+    
+    this.jobNativeArgs +:=  "-p node -A " + projId          
     this.memoryLimit = 24
     this.isIntermediate = false
   }
