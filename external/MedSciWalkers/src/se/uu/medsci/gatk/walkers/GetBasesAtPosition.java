@@ -6,9 +6,13 @@ import org.broadinstitute.sting.commandline.Argument;
 import org.broadinstitute.sting.commandline.Output;
 import org.broadinstitute.sting.gatk.contexts.ReferenceContext;
 import org.broadinstitute.sting.gatk.refdata.ReadMetaDataTracker;
+import org.broadinstitute.sting.gatk.walkers.ReadFilters;
 import org.broadinstitute.sting.gatk.walkers.ReadWalker;
 import org.broadinstitute.sting.utils.sam.GATKSAMRecord;
 
+import se.uu.medsci.gatk.filters.MinQualInIntervalFilter;
+
+@ReadFilters(MinQualInIntervalFilter.class)
 public class GetBasesAtPosition extends ReadWalker<Integer, Integer> {
 
 	@Argument(fullName = "intervalToGet", shortName = "itg", doc = "The interval that should be fetched. On form refName:start-end", required = true)
