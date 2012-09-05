@@ -698,6 +698,8 @@
         <jar jarfile="${dist.dir}/Queue.jar">
             <fileset dir="${scala.classes}">
                 <include name="org/broadinstitute/sting/queue/**/*.class"/>
+            	<!-- Adding the snp seq scala classes -->
+            	<include name="se/uu/medsci/queue/**/*.class"/>
             </fileset>
             <fileset dir="${java.classes}">
               <include name="org/broadinstitute/sting/queue/**/*.class" />
@@ -1271,7 +1273,7 @@
         </condition>
         <run-test testtype="${pipetype}" outputdir="${report}/${pipetype}" runfailed="false"/>
     </target>
-
+	
     <target name="pipelinetestrun" depends="test.compile,test.init" description="Run pipeline tests">
         <property name="pipeline.run" value="run"/>
         <condition property="pipetype" value="*PipelineTest" else="${single}">
@@ -1280,6 +1282,16 @@
         <run-test testtype="${pipetype}" outputdir="${report}/${pipetype}" runfailed="false"/>
     </target>
 
+	
+	<!-- SNPSEQ specific test -->
+	<target name="snpseq.unittest" depends="test.compile,test.init" description="Run SnpSeq unit tests">
+	    <condition property="ttype" value="*SnpSeqUnitTest" else="${single}">
+	        <not><isset property="single"/></not>
+	    </condition>
+	    <run-test testtype="${ttype}" outputdir="${report}/${ttype}" runfailed="false"/>
+    </target>
+
+	
     <target name="failed-unit" depends="test.compile,test.init">
         <run-test testtype="${report}/*UnitTest/testng-failed.xml" outputdir="${report}/failed_rerun" runfailed="true"/>
     </target>
