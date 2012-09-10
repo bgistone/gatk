@@ -23,7 +23,7 @@ class SetupXMLReader(setupXML: File) extends SetupXMLReaderAPI{
     
     def getSampleFolder(sampleName: String): File = {
         val sampleFolderNode = xml.\\("SampleFolder").find(node => node.attribute("Name").get.text.equalsIgnoreCase(sampleName))
-        new File(sampleFolderNode.get.attribute("Path").get.text)
+        new File(sampleFolderNode.get.attribute("Path").get.text).getAbsoluteFile()
     }
     
     def getPlatform(): String = {
@@ -72,6 +72,6 @@ class SetupXMLReader(setupXML: File) extends SetupXMLReaderAPI{
    
     def getReference(sampleName: String): File = {        
         val sampleFolderNode = xml.\\("SampleFolder").find(node => node.attribute("Name").get.text.equalsIgnoreCase(sampleName))
-        new File(sampleFolderNode.get.attribute("Reference").get.text)
+        new File(sampleFolderNode.get.attribute("Reference").get.text).getAbsoluteFile()
     }    
 }
