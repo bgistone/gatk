@@ -13,8 +13,7 @@ class AlignWithBWASnpSeqPipelineTest {
     // for running bwa in the pipeline.
     val pathToBwa = "which bwa".!!.replace("\n","")
     
-    val walltime = 3600
-    
+    val walltime = 3600    
     
     case class EnvironmentSetup(commandline: String, jobrunner: Seq[String], pathToBwa: String) {}
     
@@ -25,14 +24,14 @@ class AlignWithBWASnpSeqPipelineTest {
 	}       
 
   @Test
-  def testSimplePairedEndAlignment {
+  def testPairedEndAlignment {
     val projectName = "test"
     val testOut = "1.bam"
     val spec = new PipelineTestSpec()
   
     spec.jobRunners = envSetup.jobrunner
     
-    spec.name = "AlignWithBwa"
+    spec.name = "AlignPairedEndWithBwa"
     spec.args = Array(envSetup.commandline,
             		  " -bwa " + envSetup.pathToBwa,
     				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
@@ -42,8 +41,42 @@ class AlignWithBWASnpSeqPipelineTest {
     PipelineTest.executeTest(spec)
   }
  
+  @Test
+  def testSingleEndAlignment {
+    val projectName = "test"
+    val testOut = "1.bam"
+    val spec = new PipelineTestSpec()
   
-  //TODO Test all different options of pipeline
+    spec.jobRunners = envSetup.jobrunner
+    
+    spec.name = "AlignSingleEndWithBwa"
+    spec.args = Array(envSetup.commandline,
+            		  " -bwa " + envSetup.pathToBwa,
+    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    				  " -bwase ",
+    				  " -startFromScratch ").mkString
+    spec.fileMD5s += testOut -> "8ca2fd93b6eb7ac5b899bd2d3b32a7f6"
+    PipelineTest.executeTest(spec)
+  }
+ 
+  @Test
+  def testBwaSWAlignment {
+    val projectName = "test"
+    val testOut = "1.bam"
+    val spec = new PipelineTestSpec()
+  
+    spec.jobRunners = envSetup.jobrunner
+    
+    spec.name = "AlignSWWithBwa"
+    spec.args = Array(envSetup.commandline,
+            		  " -bwa " + envSetup.pathToBwa,
+    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    				  " -bwasw ",
+    				  " -startFromScratch ").mkString
+    spec.fileMD5s += testOut -> "00a8b168ab0c242406e54f9243d60211"
+    PipelineTest.executeTest(spec)
+  }
+  
   
   //TODO Test abort/resume functionality
   
