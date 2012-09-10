@@ -24,7 +24,7 @@ class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLR
 	    val fastq2: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_R2_")).toList  
 	  
 	    if(fastq1.size == 1 && fastq2.size == 1)
-	    	new ReadPairContainer(fastq1.get(0), fastq2.get(0), sampleName)    
+	    	new ReadPairContainer(fastq1.get(0).getAbsoluteFile(), fastq2.get(0).getAbsoluteFile(), sampleName)    
 	    else if (fastq1.size == 1 && fastq2.size == 0)
 	    	new ReadPairContainer(fastq1.get(0), null, sampleName)
 	    else
