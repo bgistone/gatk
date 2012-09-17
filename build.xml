@@ -1120,6 +1120,11 @@
             <condition property="pipeline.run" value="dry" else="${pipeline.run}">
                 <equals arg1="${pipeline.run}" arg2="$${pipeline.run}" />
             </condition>
+        	
+        	<!-- Try using uppmax as propery -->
+            <condition property="pipeline.uppmax" value="false" else="${pipeline.uppmax}">
+                <equals arg1="${pipeline.uppmax}" arg2="$${pipeline.uppmax}" />
+            </condition>
 
             <condition property="cofoja.jvm.args" value="-javaagent:${cofoja.jar} -Dcom.google.java.contract.log.contract=false" else="">
                 <isset property="include.contracts" />
@@ -1150,6 +1155,7 @@
                 <jvmarg value="-ea" />
                 <jvmarg value="-Djava.awt.headless=true" />
                 <jvmarg value="-Dpipeline.run=${pipeline.run}" />
+            	<jvmarg value="-Dpipeline.uppmax=${pipeline.uppmax}" />
                 <jvmarg value="-Djava.io.tmpdir=${java.io.tmpdir}" />
                 <jvmarg line="${cofoja.jvm.args}"/>
                 <jvmarg line="${debug.jvm.args}"/>
