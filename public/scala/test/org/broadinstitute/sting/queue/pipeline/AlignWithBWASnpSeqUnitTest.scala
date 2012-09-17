@@ -69,8 +69,7 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
-                //TODO Add uppmax md5
-                val md5 = ""                
+                val md5 = "4f5aa4cff97c7940ca17e552cf499817"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
@@ -109,8 +108,7 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
-                //TODO Add uppmax md5
-                val md5 = ""                
+                val md5 = "00a8b168ab0c242406e54f9243d60211"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
