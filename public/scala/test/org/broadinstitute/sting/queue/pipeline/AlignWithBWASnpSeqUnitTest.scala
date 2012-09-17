@@ -11,7 +11,7 @@ class AlignWithBWASnpSeqPipelineTest {
     val snpSeqBaseTest: SnpSeqBaseTest = new SnpSeqBaseTest()
     val pathToScript: String = " -S public/scala/qscript/org/broadinstitute/sting/queue/qscripts/AlignWithBWA.scala "    
     
-    val walltime = 3600    
+    val walltime = 600    
     
     case class EnvironmentSetup(commandline: String, jobrunner: Seq[String], pathToBwa: String) {}    
 
