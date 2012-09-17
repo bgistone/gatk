@@ -3,6 +3,13 @@ package org.broadinstitute.sting.queue.pipeline
 import org.testng.annotations._
 import se.uu.medsci.queue.SnpSeqBaseTest
 
+/**
+ * Test class for the AlignWithBwa qscript.
+ * Each test will have a data provider, supplying the correct environment setup (containing the commandline, jobrunner and bwa path),
+ * and correct md5 check sums for the result file. The result files will differ in the different environments due to the different
+ * bwa versions used.
+ * 
+ */
 class AlignWithBWASnpSeqPipelineTest {
     
     // If these tests are to run with the drmaa jobrunner, etc, specify -Dpipline.uppmax=true on the command line
@@ -16,15 +23,8 @@ class AlignWithBWASnpSeqPipelineTest {
     case class EnvironmentSetup(commandline: String, jobrunner: Seq[String], pathToBwa: String) {}    
 
     /**
-     *   @DataProvider(name = "ugIntervals")
-  def getUnifiedGenotyperIntervals =
-    Array(
-      Array("gatk_intervals", BaseTest.validationDataLocation + "intervalTest.intervals"),
-      Array("bed_intervals", BaseTest.validationDataLocation + "intervalTest.bed"),
-      Array("vcf_intervals", BaseTest.validationDataLocation + "intervalTest.1.vcf")
-    ).asInstanceOf[Array[Array[Object]]]        							    
+     * testPairEndAlignment
      */
-        							    
     @DataProvider(name = "testPairEndAlignmentDataProvider")
     def testPairEndAlignmentDataProvider: Array[Array[Object]] = {        
         runOnUppmax match {
@@ -39,8 +39,7 @@ class AlignWithBWASnpSeqPipelineTest {
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
-    }
-        							    
+    }        							    
         							    
     @Test(dataProvider="testPairEndAlignmentDataProvider")
     def testPairedEndAlignment(envSetup: EnvironmentSetup, md5sum: String) = {
@@ -60,44 +59,83 @@ class AlignWithBWASnpSeqPipelineTest {
 	    spec.fileMD5s += testOut -> md5sum
 	    PipelineTest.executeTest(spec)
     }
+    
+   /**
+    * testSingleEndAlignment 
+    */
+    
+    @DataProvider(name = "testSingleEndAlignmentDataProvider")
+    def testSingleEndAlignmentDataProvider: Array[Array[Object]] = {        
+        runOnUppmax match {
+            case true => {
+                val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+                //TODO Add uppmax md5
+                val md5 = ""                
+                Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+            }
+            case _ => {
+                val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
+                val md5 = "8ca2fd93b6eb7ac5b899bd2d3b32a7f6"
+                Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+            }
+        }                     							   
+    }
  
-//  @Test
-//  def testSingleEndAlignment {
-//    val projectName = "test"
-//    val testOut = "1.bam"
-//    val spec = new PipelineTestSpec()
-//  
-//    spec.jobRunners = envSetup.jobrunner
-//    
-//    spec.name = "AlignSingleEndWithBwa"
-//    spec.args = Array(envSetup.commandline,
-//            		  " -bwa " + envSetup.pathToBwa,
-//    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
-//    				  " -bwase ",
-//    				  " -startFromScratch ").mkString
-//    spec.fileMD5s += testOut -> "8ca2fd93b6eb7ac5b899bd2d3b32a7f6"
-//    PipelineTest.executeTest(spec)
-//  }
-// 
-//  @Test
-//  def testBwaSWAlignment {
-//    val projectName = "test"
-//    val testOut = "1.bam"
-//    val spec = new PipelineTestSpec()
-//  
-//    spec.jobRunners = envSetup.jobrunner
-//    
-//    spec.name = "AlignSWWithBwa"
-//    spec.args = Array(envSetup.commandline,
-//            		  " -bwa " + envSetup.pathToBwa,
-//    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
-//    				  " -bwasw ",
-//    				  " -startFromScratch ").mkString
-//    spec.fileMD5s += testOut -> "00a8b168ab0c242406e54f9243d60211"
-//    PipelineTest.executeTest(spec)
-//  }
+  @Test(dataProvider="testSingleEndAlignmentDataProvider")
+  def testSingleEndAlignment(envSetup: EnvironmentSetup, md5sum: String) {
+      val projectName = "test"
+      val testOut = "1.bam"
+      val spec = new PipelineTestSpec()
   
+      spec.jobRunners = envSetup.jobrunner
+    
+      spec.name = "AlignSingleEndWithBwa"
+      spec.args = Array(envSetup.commandline,
+    		  			" -bwa " + envSetup.pathToBwa,
+    		  			" -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    		  			" -bwase ",
+    				  	" -startFromScratch ").mkString
+      spec.fileMD5s += testOut -> md5sum
+      PipelineTest.executeTest(spec)
+  }
+ 
+    /**
+    * testBwaSWAlignment 
+    */
+    
+    @DataProvider(name = "testBwaSWAlignmentDataProvider")
+    def testBwaSWAlignmentDataProvider: Array[Array[Object]] = {        
+        runOnUppmax match {
+            case true => {
+                val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+                //TODO Add uppmax md5
+                val md5 = ""                
+                Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+            }
+            case _ => {
+                val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
+                val md5 = "00a8b168ab0c242406e54f9243d60211"
+                Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+            }
+        }                     							   
+    }
   
-  //TODO Test abort/resume functionality
+  @Test(dataProvider="testBwaSWAlignmentDataProvider")
+  def testBwaSWAlignment(envSetup: EnvironmentSetup, md5sum: String) {
+    val projectName = "test"
+    val testOut = "1.bam"
+    val spec = new PipelineTestSpec()
+  
+    spec.jobRunners = envSetup.jobrunner
+    
+    spec.name = "AlignSWWithBwa"
+    spec.args = Array(envSetup.commandline,
+            		  " -bwa " + envSetup.pathToBwa,
+    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    				  " -bwasw ",
+    				  " -startFromScratch ").mkString
+    spec.fileMD5s += testOut -> md5sum
+    PipelineTest.executeTest(spec)
+  }  
   
 }
