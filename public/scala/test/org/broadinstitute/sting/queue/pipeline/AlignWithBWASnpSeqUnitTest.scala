@@ -94,6 +94,7 @@ class AlignWithBWASnpSeqPipelineTest {
     		  			" -bwa " + envSetup.pathToBwa,
     		  			" -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
     		  			" -bwase ",
+    		  			" -wallTime " + walltime,
     				  	" -startFromScratch ").mkString
       spec.fileMD5s += testOut -> md5sum
       PipelineTest.executeTest(spec)
@@ -133,6 +134,7 @@ class AlignWithBWASnpSeqPipelineTest {
             		  " -bwa " + envSetup.pathToBwa,
     				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
     				  " -bwasw ",
+    				  " -wallTime " + walltime,
     				  " -startFromScratch ").mkString
     spec.fileMD5s += testOut -> md5sum
     PipelineTest.executeTest(spec)
