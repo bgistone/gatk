@@ -30,7 +30,7 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
-                val md5 = ""                
+                val md5 = "88d073bc43b6c019653787f58628c744"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
