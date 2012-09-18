@@ -38,7 +38,7 @@ class SampleSnpSeqUnitTest {
         val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader)
         
         // Run the test
-        val expected = new ReadPairContainer(new File(baseTest.pathToMate1), new File(baseTest.pathToMate2), sampleName) 
+        val expected = new ReadPairContainer(new File(baseTest.pathToMate1).getAbsoluteFile(), new File(baseTest.pathToMate2).getAbsoluteFile(), sampleName) 
         val actual = sample.getFastqs()
         
         assert(actual == expected)        

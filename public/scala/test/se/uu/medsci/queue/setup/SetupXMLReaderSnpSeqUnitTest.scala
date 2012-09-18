@@ -20,7 +20,7 @@ class SetupXMLReaderSnpSeqUnitTest {
     
 	@Test
 	def TestGetSampleFolder() = {        
-        val expected: File = new File("public/testdata/smallTestFastqDataFolder/Sample_1")
+        val expected: File = new File("public/testdata/smallTestFastqDataFolder/Sample_1").getAbsoluteFile()
         val actual: File = setupXMLReader.getSampleFolder(sampleName)
     	assert(actual == expected)
 	}    
@@ -56,7 +56,7 @@ class SetupXMLReaderSnpSeqUnitTest {
 
 	@Test
 	def TestGetReference() = {
-        val expected: File = new File(baseTest.pathToReference)
+        val expected: File = new File(baseTest.pathToReference).getAbsoluteFile()
         val actual: File = setupXMLReader.getReference(sampleName)                
         assert(expected == actual)
 	}
