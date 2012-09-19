@@ -239,7 +239,10 @@ class DataProcessingPipeline extends QScript {
     if (nContigs < 0)
      nContigs = QScriptUtils.getNumberOfContigs(bams(0))
 
-    val realignedBAMs = if (useBWApe || useBWAse  || useBWAsw) {performAlignment(bams)} else {revertBams(bams, false)}
+    // Removed this as we can assume that we will almost always have aligned data.
+    // The reassignment below is to keep the script as consistent as possible. 
+    // val realignedBAMs = if (useBWApe || useBWAse  || useBWAsw) {performAlignment(bams)} else {revertBams(bams, false)}
+    val realignedBAMs = bams
 
     // generate a BAM file per sample joining all per lane files if necessary
     val sampleBAMFiles: Map[String, Seq[File]] = createSampleFiles(bams, realignedBAMs)
