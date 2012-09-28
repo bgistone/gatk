@@ -154,6 +154,7 @@ class AlignWithBWA extends QScript {
 		  add(joinBams(sampleSams, joinedBam))
 		  // Remove the intermediate bam files after joining them.
 		  add(removeIntermediateBamFiles(sampleSams))
+		  
 		  add(sortSam(joinedBam, sortedBam, SortOrder.coordinate))
 		  sortedBam
   	}
