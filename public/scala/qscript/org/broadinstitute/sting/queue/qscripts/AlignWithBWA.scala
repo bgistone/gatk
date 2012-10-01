@@ -10,6 +10,8 @@ import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.queue.function.ListWriterFunction
 import org.broadinstitute.sting.commandline.Hidden
 import se.uu.medsci.queue.setup._
+import org.broadinstitute.sting.queue.function.InProcessFunction
+import org.broadinstitute.sting.utils.io.IOUtils
 
 class AlignWithBWA extends QScript {
    qscript =>
@@ -150,6 +152,8 @@ class AlignWithBWA extends QScript {
   	      val joinedBam = new File(outputDir + sampleName + ".unsorted.bam")
   	      val sortedBam = new File(outputDir + sampleName + ".bam")
 		  add(joinBams(sampleSams, joinedBam))
+		  // Remove the intermediate bam files after joining them.
+		  add(removeIntermediateBamFiles(sampleSams))
 		  add(sortSam(joinedBam, sortedBam, SortOrder.coordinate))
 		  sortedBam
   	}
@@ -197,6 +201,19 @@ class AlignWithBWA extends QScript {
     this.jobNativeArgs +:=  "-p node -A " + projId          
     this.memoryLimit = 24
     this.isIntermediate = false
+  }
+  
+  // Remove the intermediate bam files created before joining them per sample.
+  case class removeIntermediateBamFiles(fileToBeRemoved: Seq[File]) extends InProcessFunction {   
+      @Input(doc="Temorary files that need to be removed.") var removeThese: Seq[File] = fileToBeRemoved
+      
+      def run() {
+    	  removeThese.foreach(file => {
+    	       						   // Remove both the bam files and their indexes.
+    	       						   IOUtils.tryDelete(file)
+    	       						   IOUtils.tryDelete(file.replaceAll(".bam", ".bai"))
+    	       						   })
+      }
   }
   
   case class joinBams (inBams: Seq[File], outBam: File) extends MergeSamFiles with ExternalCommonArgs {
