@@ -27,6 +27,9 @@ class AlignWithBWA extends QScript {
   * Optional Parameters
   ****************************************************************************/
   
+  @Output(doc="This cohort list of the output files.", shortName = "cl", fullName = "cohort_list", required = false)
+  var cohortOutput: File = _  
+  
   @Input(doc="The path to the binary of bwa (usually BAM files have already been mapped - but if you want to remap this is the option)", fullName="path_to_bwa", shortName="bwa", required=false)
   var bwaPath: File = _
 
@@ -189,10 +192,11 @@ class AlignWithBWA extends QScript {
     // output a BAM list with all the processed files
     val cohortFile = new File(qscript.outputDir + setupReader.getProjectName() + ".cohort.list")
     add(writeList(cohortList, cohortFile))
+    cohortOutput = cohortFile
   }
    
   /****************************************************************************
-  * Case classes - used by qgrapth to setup the job run order.
+  * Case classes - used by q-graph to setup the job run order.
   ****************************************************************************/  
     
   // General arguments to non-GATK tools
