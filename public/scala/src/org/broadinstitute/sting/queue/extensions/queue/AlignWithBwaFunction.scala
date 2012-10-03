@@ -22,17 +22,20 @@ class AlignWithBwaFunction extends QueueScriptFunction{
   	* Optional Parameters  	
   	****************************************************************************/
   	
-  	@Argument(doc="Run the qscript", fullName="run", shortName="r", required=false)
-  	var run: Boolean = false
+  	@Output(doc="Standard Output", shortName = "o", fullName = "std_out", required = false)
+	var stdOut: File = _
+	
+	@Output(doc="Cohort file", shortName = "cf", fullName = "cohort_file", required = false)
+	var cohort: File = _
   	
-  	@Output(doc="This cohort list of the output files.", shortName = "cl", fullName = "cohort_list", required = false)
-	var cohortListFile: File = _
+  	@Argument(doc="Run the qscript", fullName="run", shortName="r", required=false)
+  	var run: Boolean = false  	
   
   	@Input(doc="The path to the binary of bwa (usually BAM files have already been mapped - but if you want to remap this is the option)", fullName="path_to_bwa", shortName="bwa", required=false)
   	var bwaPath: File = _
 
-  	@Input(doc="Output path for the processed BAM files.", fullName="output_directory", shortName="outputDir", required=false)
-  	var outputDir: File = _
+  	@Argument(doc="Output path for the processed BAM files.", fullName="output_directory", shortName="outputDir", required=false)
+  	var outputDir: String = ""
   
   	@Argument(doc="Decompose input BAM file and fully realign it using BWA and assume Single Ended reads", fullName="use_bwa_single_ended", shortName="bwase", required=false)
   	var useBWAse: Boolean = false
@@ -52,14 +55,14 @@ class AlignWithBwaFunction extends QueueScriptFunction{
 
     // Setup the commandline for the script
     override def commandLine = super.commandLine +
-  								required("-i", input ) +
+  								required("-i", input) +
+  								optional("--cohort_file", cohort) +
   								optional("-bwa", bwaPath) +
-  								optional("-outputDir", outputDir) +
+  								optional("-outputDir", outputDir, "", true, false) +
   								conditional(useBWAse, "--use_bwa_single_ended") +
   								conditional(useBWApe, "--use_bwa_pair_ended") +
-  								conditional(useBWApe, "--use_bwa_sw") +
+  								conditional(useBWAsw, "--use_bwa_sw") +
   								optional("--bwa_threads", bwaThreads)+
-  								conditional(useBWApe, "--validation") +
-  								optional("--cohort_list", cohortListFile) +
-  								conditional(true, "-run")
+  								conditional(validation, "--validation") +
+  								conditional(run, "-run")
 }

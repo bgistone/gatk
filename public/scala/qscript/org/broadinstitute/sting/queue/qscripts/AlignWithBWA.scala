@@ -25,10 +25,10 @@ class AlignWithBWA extends QScript {
 
   /****************************************************************************
   * Optional Parameters
-  ****************************************************************************/
+  ****************************************************************************/ 
   
-  @Output(doc="This cohort list of the output files.", shortName = "cl", fullName = "cohort_list", required = false)
-  var cohortOutput: File = _  
+  @Output(doc="Cohort file", shortName = "cf", fullName = "cohort_file", required = false)
+  var cohort: File = _  
   
   @Input(doc="The path to the binary of bwa (usually BAM files have already been mapped - but if you want to remap this is the option)", fullName="path_to_bwa", shortName="bwa", required=false)
   var bwaPath: File = _
@@ -190,9 +190,12 @@ class AlignWithBWA extends QScript {
     
               
     // output a BAM list with all the processed files
-    val cohortFile = new File(qscript.outputDir + setupReader.getProjectName() + ".cohort.list")
+    val cohortFile = if (cohort == null )
+        				new File(qscript.outputDir + setupReader.getProjectName() + ".cohort.list")
+    				 else
+    				    new File(cohort)
     add(writeList(cohortList, cohortFile))
-    cohortOutput = cohortFile
+    cohort = cohortFile
   }
    
   /****************************************************************************
