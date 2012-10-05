@@ -20,16 +20,10 @@ class AlignWithBwaFunction extends QueueScriptFunction{
   
   	/****************************************************************************
   	* Optional Parameters  	
-  	****************************************************************************/
-  	
-  	@Output(doc="Standard Output", shortName = "o", fullName = "std_out", required = false)
-	var stdOut: File = _
+  	****************************************************************************/  
 	
 	@Output(doc="Cohort file", shortName = "cf", fullName = "cohort_file", required = false)
 	var cohort: File = _
-  	
-  	@Argument(doc="Run the qscript", fullName="run", shortName="r", required=false)
-  	var run: Boolean = false  	
   
   	@Input(doc="The path to the binary of bwa (usually BAM files have already been mapped - but if you want to remap this is the option)", fullName="path_to_bwa", shortName="bwa", required=false)
   	var bwaPath: File = _
@@ -63,6 +57,5 @@ class AlignWithBwaFunction extends QueueScriptFunction{
   								conditional(useBWApe, "--use_bwa_pair_ended") +
   								conditional(useBWAsw, "--use_bwa_sw") +
   								optional("--bwa_threads", bwaThreads)+
-  								conditional(validation, "--validation") +
-  								conditional(run, "-run")
+  								conditional(validation, "--validation")
 }
