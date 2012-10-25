@@ -13,7 +13,9 @@ class IlluminaXMLReportReaderSnpSeqUnitTest {
     val baseTest = new SnpSeqBaseTest()
     val reportFile: File = new File(baseTest.pathToReportXML)
     val illuminaXMLReportReader = new IlluminaXMLReportReader(reportFile)
-    val sampleName = "1"        
+    val sampleName = "1" 
+    val lane = 1
+    val flowcellId = "C0HNDACXX"
     
     
     @Test
@@ -25,22 +27,22 @@ class IlluminaXMLReportReaderSnpSeqUnitTest {
     
     @Test
     def testGetFlowcellId() {    	
-    	val expected: String = "C0HNDACXX"
+    	val expected: String = flowcellId
         val actual: String = illuminaXMLReportReader.getFlowcellId()
     	assert(actual.equals(expected))
     }
     
     @Test
     def testGetPlatformUnitID() {    	
-    	val expected: String = "C0HNDACXX.4"
-        val actual: String = illuminaXMLReportReader.getPlatformUnitID(sampleName)        
-    	assert(actual.equals(expected))
+    	val expected: String = flowcellId + "."+ sampleName + "." + lane 
+        val actual: String = illuminaXMLReportReader.getPlatformUnitID(sampleName, lane)            	
+        assert(actual.equals(expected))
     }
     
     @Test
     def testGetReadGroupID() {
-    	val expected: String = "C0HNDACXX." + sampleName
-        val actual: String = illuminaXMLReportReader.getReadGroupID(sampleName)
+    	val expected: String = flowcellId + "." + sampleName + "." + lane
+        val actual: String = illuminaXMLReportReader.getReadGroupID(sampleName, lane)
     	assert(actual.equals(expected))
     }
 }

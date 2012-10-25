@@ -12,7 +12,7 @@ trait SampleAPI {
 }
 
 
-class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLReportReader: IlluminaXMLReportReaderAPI) extends SampleAPI {
+class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLReportReader: IlluminaXMLReportReaderAPI, sampleLane: Int) extends SampleAPI {
 
     /**
      * Private variables
@@ -20,23 +20,25 @@ class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLR
     private val readPairContainer: ReadPairContainer = {
 	    val sampleDirectory: File = setupXMLReader.getSampleFolder(sampleName)
 	    
-	    val fastq1: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_R1_")).toList
-	    val fastq2: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_R2_")).toList  
-	  
+	    val fastq1: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_L"+ getZerroPaddedIntAsString(sampleLane, 3) + "_R1_")).toList
+	    val fastq2: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_L"+ getZerroPaddedIntAsString(sampleLane, 3) + "_R2_")).toList  	 
+
 	    if(fastq1.size == 1 && fastq2.size == 1)
 	    	new ReadPairContainer(fastq1.get(0).getAbsoluteFile(), fastq2.get(0).getAbsoluteFile(), sampleName)    
 	    else if (fastq1.size == 1 && fastq2.size == 0)
 	    	new ReadPairContainer(fastq1.get(0), null, sampleName)
-	    else
-	    	throw new FileNotFoundException("Problem with read pairs in folder: " + sampleDirectory.getAbsolutePath() + " could not find suitable files.")
+	    else 
+	        throw new FileNotFoundException("Problem with read pairs in folder: " + sampleDirectory.getAbsolutePath() + " could not find suitable files.")
+	    
+	    	
     }
     
     private val readGroupInfo: String = {
-        val readGroupId = illuminaXMLReportReader.getReadGroupID(sampleName)
+        val readGroupId = illuminaXMLReportReader.getReadGroupID(sampleName, sampleLane)
         val sequencingCenter = setupXMLReader.getSequencingCenter()
         val readLibrary = illuminaXMLReportReader.getReadLibrary(sampleName)
         val platform = setupXMLReader.getPlatform()
-        val platformUnitId = illuminaXMLReportReader.getPlatformUnitID(sampleName)
+        val platformUnitId = illuminaXMLReportReader.getPlatformUnitID(sampleName, sampleLane)
         
         parseToBwaApprovedString(readGroupId, sequencingCenter, readLibrary, platform, platformUnitId, sampleName)        
     }
@@ -89,5 +91,17 @@ class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLR
       """\\tPL:""" + platform + """\\tPU:""" + platformUnit + "\""     
       
       return readGroupHeader
+    }    
+    
+    private def getZerroPaddedIntAsString(i: Int, totalStringLength: Int): String = {
+        rep(totalStringLength - i.toString().length()) {"0"} + i        
+    }
+    
+    private def rep(n: Int)(f: => String): String = { 
+        if (n == 1) 
+        	f 
+        else{
+            f + rep(n-1)(f)
+        }            
     }
 }

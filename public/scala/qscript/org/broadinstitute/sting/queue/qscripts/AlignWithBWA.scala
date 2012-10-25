@@ -168,7 +168,7 @@ class AlignWithBWA extends QScript {
     // final output list of bam files
     var cohortList: Seq[File] = Seq()
         
-    val setupReader: SetupXMLReader = new SetupXMLReader(input)
+    val setupReader: SetupXMLReader = new SetupXMLReader(input)   
     
     val samples: Map[String, Seq[SampleAPI]] = setupReader.getSamples()
     projId = setupReader.getUppmaxProjectId()

@@ -1,5 +1,4 @@
 package se.uu.medsci.queue.setup
-import org.apache.commons.lang.NotImplementedException
 import java.io.File
 import collection.JavaConversions._
 import scala.xml.XML
@@ -9,8 +8,9 @@ import scala.xml.XML
 trait IlluminaXMLReportReaderAPI {
     def getReadLibrary(sampleName: String): String
     def getFlowcellId(): String
-    def getPlatformUnitID(sampleName: String): String
-    def getReadGroupID(sampleName: String): String    
+    def getPlatformUnitID(sampleName: String, lane: Int): String
+    def getReadGroupID(sampleName: String, lane: Int): String    
+    def getLanes(sampleName: String): List[Int]  
 }
 
 
@@ -24,12 +24,18 @@ class IlluminaXMLReportReader(report: File) extends IlluminaXMLReportReaderAPI {
     def getFlowcellId(): String = {
         xml.\\("MetaData")(0).attribute("FlowCellId").get.text        
     }
-    def getPlatformUnitID(sampleName: String): String = {
-        getFlowcellId()  + "." + getSampleEntry(sampleName).\\("Lane").map(n => (n \ "@Id").text).mkString(".")
+    def getPlatformUnitID(sampleName: String, lane: Int): String = {
+        getFlowcellId() + "." + sampleName + "." + lane
+        // TODO Remove old implementation once sure that the new one works.
+        //getFlowcellId()  + "." + getSampleEntry(sampleName).\\("Lane").map(n => (n \ "@Id").text).mkString(".")
     }
     
-    def getReadGroupID(sampleName: String): String = {
-         getFlowcellId() + "." + sampleName
+    def getReadGroupID(sampleName: String, lane: Int): String = {
+         getFlowcellId() + "." + sampleName + "." + lane
+    }
+    
+    def getLanes(sampleName: String): List[Int] = {
+        getSampleEntry(sampleName).\\("Lane").map(n => (n \ "@Id").text.toInt).toList
     }
     
     private def getSampleEntry(sampleName: String) = {

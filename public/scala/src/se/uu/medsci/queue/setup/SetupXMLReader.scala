@@ -63,21 +63,23 @@ class SetupXMLReader(setupXML: File) extends SetupXMLReaderAPI{
         // run folder, add it to the map under the same sample name.
         for (runFolderNode <- runFolderNodes){
         	
-            val sampleNodes = runFolderNode.\\("SampleFolder")              
-
+            val sampleNodes = runFolderNode.\\("SampleFolder")                          
+            
             for(sampleNode <- sampleNodes) {
-
+                
 	            val illuminaXMLReportFile: File = new File(runFolderNode.attribute("Report").get.text)
 	            val illuminaXMLReportReader: IlluminaXMLReportReader = new IlluminaXMLReportReader(illuminaXMLReportFile)
-	            val sampleName = sampleNode.attribute("Name").get.text
+	            val sampleName = sampleNode.attribute("Name").get.text	
 	            
-	            // If there is already a sample with this name in the in the map, add it to the list.
-	            // if not, create a new list for that sample.
-	            if(!samples.contains(sampleName))
-	                samples(sampleName) = Seq(new Sample(sampleName, this, illuminaXMLReportReader))
-	            else
-	                samples(sampleName) :+= new Sample(sampleName, this, illuminaXMLReportReader)           
-	            
+	            for (lane <- illuminaXMLReportReader.getLanes(sampleName)) {	 	                
+	                
+		            // If there is already a sample with this name in the in the map, add it to the list.
+		            // if not, create a new list for that sample.
+		            if(!samples.contains(sampleName))
+		                samples(sampleName) = Seq(new Sample(sampleName, this, illuminaXMLReportReader, lane))		                		            
+		            else
+		                samples(sampleName) :+= new Sample(sampleName, this, illuminaXMLReportReader, lane)	            		                
+		        }          	            
 	        }
         }
     	samples.toMap

@@ -30,12 +30,13 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+                //TODO Fix new md5s
                 val md5 = "88d073bc43b6c019653787f58628c744"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-                val md5 = "49c5c674c9fbf3dd95c7bb2d3037ff4d"
+                val md5 = "4451f6599fce29ea2612a3a87fb2ec59"
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
@@ -52,7 +53,7 @@ class AlignWithBWASnpSeqPipelineTest {
 	    spec.name = "AlignPairedEndWithBwa"
 	    spec.args = Array(envSetup.commandline,
 	            		  " -bwa " + envSetup.pathToBwa,
-	    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+	    				  " -i " + snpSeqBaseTest.pathSetupFile,
 	    				  " -bwape ",
 	    				  " -wallTime " + walltime,
 	    				  " -startFromScratch ").mkString
@@ -69,12 +70,13 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+                //TODO Fix new md5s
                 val md5 = "4f5aa4cff97c7940ca17e552cf499817"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-                val md5 = "8ca2fd93b6eb7ac5b899bd2d3b32a7f6"
+                val md5 = "8ece3ccce3b2c83dc6ebbcac98c16caf"
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
@@ -91,7 +93,7 @@ class AlignWithBWASnpSeqPipelineTest {
       spec.name = "AlignSingleEndWithBwa"
       spec.args = Array(envSetup.commandline,
     		  			" -bwa " + envSetup.pathToBwa,
-    		  			" -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    		  			" -i " + snpSeqBaseTest.pathSetupFile,
     		  			" -bwase ",
     		  			" -wallTime " + walltime,
     				  	" -startFromScratch ").mkString
@@ -107,7 +109,7 @@ class AlignWithBWASnpSeqPipelineTest {
     def testBwaSWAlignmentDataProvider: Array[Array[Object]] = {        
         runOnUppmax match {
             case true => {
-                val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+                val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");                                
                 val md5 = "00a8b168ab0c242406e54f9243d60211"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
@@ -130,7 +132,7 @@ class AlignWithBWASnpSeqPipelineTest {
     spec.name = "AlignSWWithBwa"
     spec.args = Array(envSetup.commandline,
             		  " -bwa " + envSetup.pathToBwa,
-    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetup.xml",
+    				  " -i " + snpSeqBaseTest.pathSetupFile,
     				  " -bwasw ",
     				  " -wallTime " + walltime,
     				  " -startFromScratch ").mkString
@@ -147,12 +149,13 @@ class AlignWithBWASnpSeqPipelineTest {
     runOnUppmax match {
         case true => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+            //TODO Fix new md5s
             val md5 = "8affd69d2b506bd7d35bdd226f27d057"                
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
         case _ => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-            val md5 = "7e1b01030b0855c9c1d81b6f7cac5417"
+            val md5 = "c0be0a282bd20b1300adfe55b6b3a488"
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
     }                     							   
@@ -169,7 +172,7 @@ class AlignWithBWASnpSeqPipelineTest {
     spec.name = "SameSampleInMoreThanOneRunFolder"
     spec.args = Array(envSetup.commandline,
             		  " -bwa " + envSetup.pathToBwa,
-    				  " -i " + snpSeqBaseTest.pathToBaseDir + "pipelineSetupSameSampleAcrossMultipleLanes.xml",
+    				  " -i " + snpSeqBaseTest.pathToSetupFileForSameSampleAcrossMultipleRunFolders,
     				  " -bwape ",
     				  " -wallTime " + walltime,
     				  " -startFromScratch ").mkString
@@ -177,4 +180,46 @@ class AlignWithBWASnpSeqPipelineTest {
     PipelineTest.executeTest(spec)
   } 
   
+  
+  /**
+   * testSameSampleAcrossSeveralLanes
+   */
+    
+  //TODO Fix this!
+  @DataProvider(name = "testSameSampleAcrossSeveralLanesDataProvider")
+  def testSameSampleAcrossSeveralLanesDataProvider: Array[Array[Object]] = {        
+    runOnUppmax match {
+        case true => {
+            val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
+            //TODO Fix new md5s
+            val md5 = ""                
+            Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+        }
+        case _ => {
+            val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
+            val md5 = "9774391df9f3e9825757139699ac09f6"
+            Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
+        }
+    }                     							   
+  }
+ 
+  //TODO Fix this!
+  @Test(dataProvider="testSameSampleAcrossSeveralLanesDataProvider")
+  def testSameSampleAcrossSeveralLanes(envSetup: EnvironmentSetup, md5sum: String) {
+    val projectName = "test"
+    val testOut = "1.bam"
+    val spec = new PipelineTestSpec()
+  
+    spec.jobRunners = envSetup.jobrunner
+    
+    spec.name = "SameSampleAcrossSeveralLanes"
+    spec.args = Array(envSetup.commandline,
+            		  " -bwa " + envSetup.pathToBwa,
+    				  " -i " + snpSeqBaseTest.pathToSetupFileForSameSampleAcrossMultipleLanes,
+    				  " -bwape ",
+    				  " -wallTime " + walltime,
+    				  " -startFromScratch ").mkString
+    spec.fileMD5s += testOut -> md5sum
+    PipelineTest.executeTest(spec)
+  } 
 }
