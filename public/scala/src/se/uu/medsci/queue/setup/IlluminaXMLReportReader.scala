@@ -35,10 +35,16 @@ class IlluminaXMLReportReader(report: File) extends IlluminaXMLReportReaderAPI {
     }
     
     def getLanes(sampleName: String): List[Int] = {
-        getSampleEntry(sampleName).\\("Lane").map(n => (n \ "@Id").text.toInt).toList
+        //TODO Check if this is correct.
+        // But the idea would be to get only the lanes for the particular sample.        
+        val sampleEntry = getSampleEntry(sampleName)
+        sampleEntry.\\("Lane").map(n => (n \ "@Id").text.toInt).toList
     }
     
-    private def getSampleEntry(sampleName: String) = {
-        xml.\\("Sample").find(f => f.attribute("Id").get.text.equalsIgnoreCase(sampleName)).get
+    private def getSampleEntry(sampleName: String): scala.xml.NodeSeq = {
+        //TODO This is probably the origin of the whole problem!
+        //xml.\\("Sample").find(f => {f.attribute("Id").get.text.equalsIgnoreCase(sampleName)}).get        
+        xml.\\("Sample").filter(!_.\\("@Id").text.equalsIgnoreCase(sampleName))
+        
     }
 }

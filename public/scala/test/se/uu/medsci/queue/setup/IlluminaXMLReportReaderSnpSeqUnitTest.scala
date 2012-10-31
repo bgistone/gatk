@@ -16,8 +16,30 @@ class IlluminaXMLReportReaderSnpSeqUnitTest {
     val sampleName = "1" 
     val lane = 1
     val flowcellId = "C0HNDACXX"
+
+    @Test
+    def testGetLanes{        
+        val expected: List[Int] = List(1)
+        val actual: List[Int] = illuminaXMLReportReader.getLanes(sampleName)               
+    	assert(actual.equals(expected))
+    }
     
-    
+   
+    @Test
+    def testGetLanesMoreThanOneLaneForSample{        
+        val expected: List[Int] = List(1,2)
+        
+        val illuminaXMLReportReaderForFileWithMoreThanOneLanePerSample = 
+            new IlluminaXMLReportReader(new File(baseTest.pathToReportXMLForSameSampleAcrossMultipleLanes))
+        
+        val actual: List[Int] = illuminaXMLReportReaderForFileWithMoreThanOneLanePerSample.getLanes(sampleName)        
+        
+        println("expected: " + expected)
+        println("actual: " + actual)
+        
+    	assert(actual.equals(expected))
+    }
+            
     @Test
     def testGetReadLibrary() {        
         val expected: String = "CEP_C13-NA11992"

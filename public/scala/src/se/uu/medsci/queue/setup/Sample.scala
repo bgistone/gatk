@@ -28,7 +28,8 @@ class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLR
 	    else if (fastq1.size == 1 && fastq2.size == 0)
 	    	new ReadPairContainer(fastq1.get(0), null, sampleName)
 	    else 
-	        throw new FileNotFoundException("Problem with read pairs in folder: " + sampleDirectory.getAbsolutePath() + " could not find suitable files.")
+	        throw new FileNotFoundException("Problem with read pairs in folder: " + sampleDirectory.getAbsolutePath() + " could not find suitable files. \n" +
+	        		"the sample name was: " + sampleName + "and the sample lane: " + sampleLane)
 	    
 	    	
     }

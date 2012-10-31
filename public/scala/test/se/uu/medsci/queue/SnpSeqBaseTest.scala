@@ -18,6 +18,8 @@ class SnpSeqBaseTest {
     val pathSetupFile: String = pathToBaseDir + "pipelineSetup.xml"    
     val pathToSetupFileForSameSampleAcrossMultipleRunFolders = pathToBaseDir + "pipelineSetupSameSampleAcrossMultipleRunFolders.xml"
     val pathToSetupFileForSameSampleAcrossMultipleLanes = pathToBaseDir + "pipelineSetupSameSampleAcrossMultipleLanes.xml"
-    val pathToReportXML: String = pathToBaseDir + "smallTestFastqDataFolder/report.xml"
+    
+    val pathToReportXML: String = pathToBaseDir + "smallTestFastqDataFolder/report.xml"    
+    val pathToReportXMLForSameSampleAcrossMultipleLanes = pathToBaseDir +"runFolderWithSameSampleInMultipleLanes/report.xml"
 
 }
