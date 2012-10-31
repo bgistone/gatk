@@ -38,7 +38,13 @@ class IlluminaXMLReportReader(report: File) extends IlluminaXMLReportReaderAPI {
         //TODO Check if this is correct.
         // But the idea would be to get only the lanes for the particular sample.        
         val sampleEntry = getSampleEntry(sampleName)
-        sampleEntry.\\("Lane").map(n => (n \ "@Id").text.toInt).toList
+        println("SampleEntry is:" + sampleEntry.toString())
+        val list = sampleEntry.\\("Lane").map(n => (n \ "@Id").text.toInt).toList
+        
+        println("List:")
+        println(list.toString())
+        
+        return list
     }
     
     private def getSampleEntry(sampleName: String): scala.xml.NodeSeq = {
