@@ -17,6 +17,7 @@ class SetupXMLReaderSnpSeqUnitTest {
     val setupFile: File = new File(baseTest.pathSetupFile)
     val setupXMLReader = new SetupXMLReader(setupFile)
     val sampleName = "1"
+    val runFolderName = "public/testdata/smallTestFastqDataFolder/report.xml"
         
         
     @BeforeMethod
@@ -38,7 +39,7 @@ class SetupXMLReaderSnpSeqUnitTest {
 	@Test
 	def TestGetSampleFolder() = {        
         val expected: File = new File("public/testdata/smallTestFastqDataFolder/Sample_1").getAbsoluteFile()
-        val actual: File = setupXMLReader.getSampleFolder(sampleName)
+        val actual: File = setupXMLReader.getSampleFolder(sampleName, runFolderName)
     	assert(actual == expected)    	
 	}    
 
@@ -68,7 +69,7 @@ class SetupXMLReaderSnpSeqUnitTest {
 	    
 	    val illuminaXMLReportReader: IlluminaXMLReportReaderAPI = new IlluminaXMLReportReaderStub()
 	    val expected:  scala.collection.mutable.Map[String, Seq[SampleAPI]] = scala.collection.mutable.Map.empty[String, Seq[SampleAPI]]
-	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader,1)) 
+	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader,1, runFolderName)) 
 	    val actual:  Map[String, Seq[SampleAPI]] = setupXMLReader.getSamples()	
 	    
 	    assert(expected.sameElements(actual))	    
@@ -80,17 +81,19 @@ class SetupXMLReaderSnpSeqUnitTest {
 	    // Reset some of the shared resources
 	    val setupFile: File = new File(baseTest.pathToSetupFileForSameSampleAcrossMultipleRunFolders)
 	    val setupXMLReader = new SetupXMLReader(setupFile)
-	    val sampleName = "1"    
-	    
+	    val sampleName = "1"
+	    val runFolderName1  = "public/testdata/runFoldersForMultipleSample/runfolder1/report.xml"
+	    val runFolderName2  = "public/testdata/runFoldersForMultipleSample/runfolder2/report.xml"
+	        
 	    // Setup the expected result - the same sample twice.    
 	    val illuminaXMLReportReader: IlluminaXMLReportReaderAPI = new IlluminaXMLReportReaderStub()
 	    val expected:  scala.collection.mutable.Map[String, Seq[SampleAPI]] = scala.collection.mutable.Map.empty[String, Seq[SampleAPI]]
-	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader, 1))
-	    expected("1") :+= new Sample("1", setupXMLReader, illuminaXMLReportReader, 1)
+	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader, 1, runFolderName1))
+	    expected("1") :+= new Sample("1", setupXMLReader, illuminaXMLReportReader, 1, runFolderName2)
 	    
 	    // Run the test and evaluate the result
 	    val actual:  Map[String, Seq[SampleAPI]] = setupXMLReader.getSamples()	    	 	    	    
-	    assert(expected.sameElements(actual))	    
+	    assert(expected.sameElements(actual))
 	}
 		
 	@Test
@@ -100,12 +103,14 @@ class SetupXMLReaderSnpSeqUnitTest {
 	    val setupFile: File = new File(baseTest.pathToSetupFileForSameSampleAcrossMultipleLanes)
 	    val setupXMLReader = new SetupXMLReader(setupFile)
 	    val sampleName = "1"    
-	    
+	    val runFolderName1  = "public/testdata/runFolderWithSameSampleInMultipleLanes/report.xml"
+	        
+	        
 	    // Setup the expected result - the same sample twice.    
 	    val illuminaXMLReportReader: IlluminaXMLReportReaderAPI = new IlluminaXMLReportReaderStub()
 	    val expected:  scala.collection.mutable.Map[String, Seq[SampleAPI]] = scala.collection.mutable.Map.empty[String, Seq[SampleAPI]]
-	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader, 1))
-	    expected("1") :+= new Sample("1", setupXMLReader, illuminaXMLReportReader, 1)
+	    expected("1") = Seq(new Sample("1", setupXMLReader, illuminaXMLReportReader, 1, runFolderName1))
+	    expected("1") :+= new Sample("1", setupXMLReader, illuminaXMLReportReader, 1, runFolderName1)
 	    
 	    // Run the test and evaluate the result
 	    val actual:  Map[String, Seq[SampleAPI]] = setupXMLReader.getSamples()

@@ -26,8 +26,6 @@ class IlluminaXMLReportReader(report: File) extends IlluminaXMLReportReaderAPI {
     }
     def getPlatformUnitID(sampleName: String, lane: Int): String = {
         getFlowcellId() + "." + sampleName + "." + lane
-        // TODO Remove old implementation once sure that the new one works.
-        //getFlowcellId()  + "." + getSampleEntry(sampleName).\\("Lane").map(n => (n \ "@Id").text).mkString(".")
     }
     
     def getReadGroupID(sampleName: String, lane: Int): String = {
@@ -35,22 +33,14 @@ class IlluminaXMLReportReader(report: File) extends IlluminaXMLReportReaderAPI {
     }
     
     def getLanes(sampleName: String): List[Int] = {
-        //TODO Check if this is correct.
-        // But the idea would be to get only the lanes for the particular sample.        
         val sampleEntry = getSampleEntry(sampleName)
-        println("SampleEntry is:" + sampleEntry.toString())
-        val list = sampleEntry.\\("Lane").map(n => (n \ "@Id").text.toInt).toList
-        
-        println("List:")
-        println(list.toString())
-        
+        val list = sampleEntry.\\("Lane").map(n => (n \ "@Id").text.toInt).toList        
         return list
     }
     
     private def getSampleEntry(sampleName: String): scala.xml.NodeSeq = {
-        //TODO This is probably the origin of the whole problem!
-        //xml.\\("Sample").find(f => {f.attribute("Id").get.text.equalsIgnoreCase(sampleName)}).get        
-        xml.\\("Sample").filter(!_.\\("@Id").text.equalsIgnoreCase(sampleName))
-        
+        val allSamples = xml.\\("Sample")       
+        val filteredSamples = allSamples.filter(_.\("@Id").text.equalsIgnoreCase(sampleName))
+        filteredSamples       
     }
 }

@@ -12,13 +12,13 @@ trait SampleAPI {
 }
 
 
-class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLReportReader: IlluminaXMLReportReaderAPI, sampleLane: Int) extends SampleAPI {
+class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLReportReader: IlluminaXMLReportReaderAPI, sampleLane: Int, runFolderName: String) extends SampleAPI {
 
     /**
      * Private variables
      */
     private val readPairContainer: ReadPairContainer = {
-	    val sampleDirectory: File = setupXMLReader.getSampleFolder(sampleName)
+	    val sampleDirectory: File = setupXMLReader.getSampleFolder(sampleName, runFolderName)	    
 	    
 	    val fastq1: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_L"+ getZerroPaddedIntAsString(sampleLane, 3) + "_R1_")).toList
 	    val fastq2: List[File] = sampleDirectory.listFiles().filter(f => f.getName().contains("_L"+ getZerroPaddedIntAsString(sampleLane, 3) + "_R2_")).toList  	 
@@ -29,9 +29,7 @@ class Sample(sampleName: String, setupXMLReader: SetupXMLReaderAPI, illuminaXMLR
 	    	new ReadPairContainer(fastq1.get(0), null, sampleName)
 	    else 
 	        throw new FileNotFoundException("Problem with read pairs in folder: " + sampleDirectory.getAbsolutePath() + " could not find suitable files. \n" +
-	        		"the sample name was: " + sampleName + "and the sample lane: " + sampleLane)
-	    
-	    	
+	        		"the sample name was: " + sampleName + " and the sample lane: " + sampleLane)	   
     }
     
     private val readGroupInfo: String = {

@@ -14,6 +14,7 @@ class SampleSnpSeqUnitTest {
     var sampleName = "TestSample"
     var setupXMLReader = new SetupXMLReaderStub()              
     var illuminaXMLReportReader = new IlluminaXMLReportReaderStub()
+    var runFolderName = "public/testdata/smallTestFastqDataFolder/report.xml" //TODO check that this is correct
     
     @BeforeMethod
     def beforeTest() {
@@ -35,7 +36,7 @@ class SampleSnpSeqUnitTest {
     def testGetFastqs() {        
         
         // Class under test
-        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
         
         // Run the test
         val expected = new ReadPairContainer(new File(baseTest.pathToMate1).getAbsoluteFile(), new File(baseTest.pathToMate2).getAbsoluteFile(), sampleName) 
@@ -51,7 +52,7 @@ class SampleSnpSeqUnitTest {
         setupXMLReader.sampleFolder = new File(baseTest.pathToBaseDir)        
         
         // Class under test
-        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
      
         // Run the test
         val actual = sample.getFastqs()
@@ -73,7 +74,7 @@ class SampleSnpSeqUnitTest {
         """\\tPL:""" + setupXMLReader.platform + """\\tPU:""" + illuminaXMLReportReader.platformUnitId + "\""    
         
         // Class under test
-        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
                              
         // Run the test
         val actual: String = sample.getReadGroupInformation()
@@ -90,7 +91,7 @@ class SampleSnpSeqUnitTest {
         setupXMLReader.reference = expected
         
         // Class under test
-        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val sample = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
         
         // Run the test
         val actual: File = sample.getReference()
@@ -101,10 +102,10 @@ class SampleSnpSeqUnitTest {
     @Test
     def testEqualsTrue() {
         // Setup
-        val expected = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1)
+        val expected = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1, runFolderName)
         
         // Class under test
-        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1)
+        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1, runFolderName)
         
         // Run the test
         assert(actual.equals(expected))
@@ -114,10 +115,10 @@ class SampleSnpSeqUnitTest {
     @Test
     def testEqualsFalse() {
         // Setup
-        val expected = new Sample("AnotherName", setupXMLReader, illuminaXMLReportReader, 1)
+        val expected = new Sample("AnotherName", setupXMLReader, illuminaXMLReportReader, 1, runFolderName)
         
         // Class under test
-        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1)
+        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader, 1, runFolderName)
         
         // Run the test
         assert(!actual.equals(expected))
@@ -127,10 +128,10 @@ class SampleSnpSeqUnitTest {
     @Test
     def testHashCode() {    
          // Setup
-        val expected = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val expected = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
         
         // Class under test
-        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1)
+        val actual = new Sample(sampleName, setupXMLReader, illuminaXMLReportReader,1, runFolderName)
         
         // Run the test
         assert(actual.hashCode() == expected.hashCode())

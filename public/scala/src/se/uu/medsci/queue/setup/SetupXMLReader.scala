@@ -8,7 +8,7 @@ import java.io.FileNotFoundException
 
 trait SetupXMLReaderAPI {
     
-    def getSampleFolder(sampleName: String): File    
+    def getSampleFolder(sampleName: String, runFolderName: String): File    
     def getPlatform(): String
     def getSequencingCenter(): String   
     def getProjectName(): String
@@ -22,10 +22,12 @@ class SetupXMLReader(setupXML: File) extends SetupXMLReaderAPI{
     val xml = XML.loadFile(setupXML)
     
     
-    def getSampleFolder(sampleName: String): File = {
-        val sampleFolderNode = xml.\\("SampleFolder").find(node => node.attribute("Name").get.text.equalsIgnoreCase(sampleName))
-        val sampleFolder = new File(sampleFolderNode.get.attribute("Path").get.text).getAbsoluteFile()
+    def getSampleFolder(sampleName: String, runFolderName: String): File = {
         
+        val runFolder = xml.\\("RunFolder").filter(f => f.\("@Report").text.equalsIgnoreCase(runFolderName))               
+        val sampleFolderNode = runFolder.\("SampleFolder").filter(f => f.\("@Name").text.equalsIgnoreCase(sampleName))
+        val sampleFolder = new File(sampleFolderNode.\("@Path").text).getAbsoluteFile()
+                
         if(sampleFolder != null)
             sampleFolder
         else
@@ -63,22 +65,24 @@ class SetupXMLReader(setupXML: File) extends SetupXMLReaderAPI{
         // run folder, add it to the map under the same sample name.
         for (runFolderNode <- runFolderNodes){
         	
-            val sampleNodes = runFolderNode.\\("SampleFolder")                          
+            val runFolderName = runFolderNode.\("@Report").text
+            
+            val sampleNodes = runFolderNode.\("SampleFolder")                          
             
             for(sampleNode <- sampleNodes) {
                 
 	            val illuminaXMLReportFile: File = new File(runFolderNode.attribute("Report").get.text)
 	            val illuminaXMLReportReader: IlluminaXMLReportReader = new IlluminaXMLReportReader(illuminaXMLReportFile)
-	            val sampleName = sampleNode.attribute("Name").get.text	
+	            val sampleName = sampleNode.attribute("Name").get.text		            
 	            
 	            for (lane <- illuminaXMLReportReader.getLanes(sampleName)) {	 	                
 	                
 		            // If there is already a sample with this name in the in the map, add it to the list.
 		            // if not, create a new list for that sample.
 		            if(!samples.contains(sampleName))
-		                samples(sampleName) = Seq(new Sample(sampleName, this, illuminaXMLReportReader, lane))		                		            
+		                samples(sampleName) = Seq(new Sample(sampleName, this, illuminaXMLReportReader, lane, runFolderName))		                		            
 		            else
-		                samples(sampleName) :+= new Sample(sampleName, this, illuminaXMLReportReader, lane)	            		                
+		                samples(sampleName) :+= new Sample(sampleName, this, illuminaXMLReportReader, lane, runFolderName)	            		                
 		        }          	            
 	        }
         }

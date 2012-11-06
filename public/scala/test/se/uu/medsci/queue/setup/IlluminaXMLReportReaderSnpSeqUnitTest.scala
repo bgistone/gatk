@@ -32,10 +32,7 @@ class IlluminaXMLReportReaderSnpSeqUnitTest {
         val illuminaXMLReportReaderForFileWithMoreThanOneLanePerSample = 
             new IlluminaXMLReportReader(new File(baseTest.pathToReportXMLForSameSampleAcrossMultipleLanes))
         
-        val actual: List[Int] = illuminaXMLReportReaderForFileWithMoreThanOneLanePerSample.getLanes(sampleName)        
-        
-        println("expected: " + expected)
-        println("actual: " + actual)
+        val actual: List[Int] = illuminaXMLReportReaderForFileWithMoreThanOneLanePerSample.getLanes(sampleName)               
         
     	assert(actual.equals(expected))
     }

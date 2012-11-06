@@ -13,12 +13,12 @@ class SetupXMLReaderStub extends SetupXMLReaderAPI{
     var reference: File = null
     var uppmaxProjectId = null
     
-    def getSampleFolder(sampleName: String): File  = {sampleFolder}  
+    def getSampleFolder(sampleName: String, runFolderName: String): File  = {sampleFolder}  
     def getPlatform(): String = {platform}
     def getSequencingCenter(): String   = {sequencingCenter}
     def getProjectName(): String = {projectName}
     def getSamples():  Map[String, Seq[SampleAPI]] = {samples} 
     def getReference(sampleName: String): File = {reference}
-    def getUppmaxProjectId() = {uppmaxProjectId}
-
+    def getUppmaxProjectId() = {uppmaxProjectId}    
+    
 }
