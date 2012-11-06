@@ -5,7 +5,7 @@ import java.io.PrintStream;
 import org.broadinstitute.sting.commandline.Argument;
 import org.broadinstitute.sting.commandline.Output;
 import org.broadinstitute.sting.gatk.contexts.ReferenceContext;
-import org.broadinstitute.sting.gatk.refdata.ReadMetaDataTracker;
+import org.broadinstitute.sting.gatk.refdata.RefMetaDataTracker;
 import org.broadinstitute.sting.gatk.walkers.ReadFilters;
 import org.broadinstitute.sting.gatk.walkers.ReadWalker;
 import org.broadinstitute.sting.utils.sam.GATKSAMRecord;
@@ -38,7 +38,7 @@ public class GetBasesAtPosition extends ReadWalker<Integer, Integer> {
 
 	@Override
 	public Integer map(ReferenceContext ref, GATKSAMRecord read,
-			ReadMetaDataTracker metaDataTracker) {
+			RefMetaDataTracker metaDataTracker) {
 
 		int alignmentStart = read.getAlignmentStart();
 		int alignmentEnd = read.getAlignmentEnd();
@@ -88,5 +88,4 @@ public class GetBasesAtPosition extends ReadWalker<Integer, Integer> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

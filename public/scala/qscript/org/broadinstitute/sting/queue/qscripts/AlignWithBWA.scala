@@ -30,22 +30,22 @@ class AlignWithBWA extends QScript {
   @Input(doc="The path to the binary of bwa (usually BAM files have already been mapped - but if you want to remap this is the option)", fullName="path_to_bwa", shortName="bwa", required=false)
   var bwaPath: File = _
 
-  @Input(doc="Output path for the processed BAM files.", fullName="output_directory", shortName="outputDir", required=false)
+  @Argument(doc="Output path for the processed BAM files.", fullName="output_directory", shortName="outputDir", required=false)
   var outputDir: String = ""
   
-  @Input(doc="Decompose input BAM file and fully realign it using BWA and assume Single Ended reads", fullName="use_bwa_single_ended", shortName="bwase", required=false)
+  @Argument(doc="Decompose input BAM file and fully realign it using BWA and assume Single Ended reads", fullName="use_bwa_single_ended", shortName="bwase", required=false)
   var useBWAse: Boolean = false
 
-  @Input(doc="Decompose input BAM file and fully realign it using BWA and assume Pair Ended reads", fullName="use_bwa_pair_ended", shortName="bwape", required=false)
+  @Argument(doc="Decompose input BAM file and fully realign it using BWA and assume Pair Ended reads", fullName="use_bwa_pair_ended", shortName="bwape", required=false)
   var useBWApe: Boolean = false
 
-  @Input(doc="Decompose input BAM file and fully realign it using BWA SW", fullName="use_bwa_sw", shortName="bwasw", required=false)
+  @Argument(doc="Decompose input BAM file and fully realign it using BWA SW", fullName="use_bwa_sw", shortName="bwasw", required=false)
   var useBWAsw: Boolean = false
 
-  @Input(doc="Number of threads BWA should use", fullName="bwa_threads", shortName="bt", required=false)
+  @Argument(doc="Number of threads BWA should use", fullName="bwa_threads", shortName="bt", required=false)
   var bwaThreads: Int = 1
 
-  @Input(doc="Perform validation on the BAM files", fullName="validation", shortName="vs", required=false)
+  @Argument(doc="Perform validation on the BAM files", fullName="validation", shortName="vs", required=false)
   var validation: Boolean = false
 
   /****************************************************************************
