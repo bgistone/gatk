@@ -1,0 +1,5 @@
+This is a list of TODOs for this fork of GATK:
+
+* Lift out UPPMAX specific attributes into a UppmaxQscript trait, which can be mixed in to the qscripts. This would make it easier to adjust scripts for usage on uppmax in the future.
+* Look into lifting in e.g. the haplotype caller into the pipeline.
+* Refactor all of the setup scripts, so that the entire pipeline is run in with scala (as opposed to a external bash script).

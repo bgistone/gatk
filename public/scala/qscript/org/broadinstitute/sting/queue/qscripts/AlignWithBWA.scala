@@ -13,6 +13,14 @@ import se.uu.medsci.queue.setup._
 import org.broadinstitute.sting.queue.function.InProcessFunction
 import org.broadinstitute.sting.utils.io.IOUtils
 
+/**
+ * TODO
+ * - Fix core/node optimization.
+ * - Look at the removing of intermediate bam failes part. Right now it seems that it removes the wrong files when re-running the script.
+ */
+
+
+
 class AlignWithBWA extends QScript {
    qscript =>
 

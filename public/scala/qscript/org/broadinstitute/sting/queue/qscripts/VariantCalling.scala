@@ -30,6 +30,12 @@ import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.gatk.walkers.genotyper.GenotypeLikelihoodsCalculationModel
 
 /**
+ * TODO
+ * - Implement variant filtration for the different files.
+ * - Implement node/core optimization
+ */
+
+/**
  * Variant calling pipeline script which accepts either a bam file or a list of bamfiles.
  * This is based on the ExampleUnifiedGenotyper script provided with GATK. It has, however,
  * been extended and some of the input parameters have been changed to retain consistency 

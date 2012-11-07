@@ -15,6 +15,13 @@ import org.broadinstitute.sting.queue.function.ListWriterFunction
 import org.broadinstitute.sting.commandline.Hidden
 import org.broadinstitute.sting.commandline
 
+/**
+ * TODO
+ * - Look at node/core optimization.
+ * - Make sure that the scatter/gatter functionality works as intended. Might want to fix it so that s/g is performed even when realigning.
+ * - Might want to include reduce bam, etc. in this to increase the effectivity.
+ */
+
 class DataProcessingPipeline extends QScript {
   qscript =>
 
