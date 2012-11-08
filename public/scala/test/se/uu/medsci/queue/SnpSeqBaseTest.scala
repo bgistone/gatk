@@ -1,5 +1,7 @@
 package se.uu.medsci.queue
 
+import java.io.File;
+
 class SnpSeqBaseTest {
     
     // private static final String publicTestDirRelative = "public/testdata/";
@@ -7,7 +9,7 @@ class SnpSeqBaseTest {
     // protected static final String publicTestDirRoot = publicTestDir.replace(publicTestDirRelative, "");
     
     val pathToBaseDir: String = "public/testdata/"
-    val publicTestDir: String = "public/testdata/"    
+    val publicTestDir: String = new File("public/testdata/").getAbsolutePath() + "/"    
     
     val pathToSampleFolder: String = pathToBaseDir + "smallTestFastqDataFolder/Sample_1"    
     
