@@ -36,26 +36,27 @@ class DataProcessingSnpSeqPipelineTest {
   
   val snpSeqBaseTest = new SnpSeqBaseTest()  
     
-//TODO Find out why the md5sum fails!  
-//  @Test
-//  def testSimpleBAM {
-//    val projectName = "test1"
-//    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
-//    val spec = new PipelineTestSpec
-//    spec.jobRunners = Seq("Shell")
-//    spec.name = "DataProcessingPipeline"
-//    spec.args = Array(
-//      " -S public/scala/qscript/org/broadinstitute/sting/queue/qscripts/DataProcessingPipeline.scala",
-//      " -R " + snpSeqBaseTest.publicTestDir + "exampleFASTA.fasta",
-//      " -i " + snpSeqBaseTest.publicTestDir + "exampleBAM.bam",
-//      " -D " + snpSeqBaseTest.publicTestDir + "exampleDBSNP.vcf",
-//      " -test ",
-//      "-startFromScratch",
-//      " -p " + projectName).mkString
-//    spec.fileMD5s += testOut -> "45d97df6d291695b92668e8a55c54cd0"
-//    PipelineTest.executeTest(spec)
-//  }
+  //TODO Find out why the md5sum fails!  
+  @Test
+  def testSimpleBAM {
+    val projectName = "test1"
+    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
+    val spec = new PipelineTestSpec
+    spec.jobRunners = Seq("Shell")
+    spec.name = "DataProcessingPipeline"
+    spec.args = Array(
+      " -S public/scala/qscript/org/broadinstitute/sting/queue/qscripts/DataProcessingPipeline.scala",
+      " -R " + snpSeqBaseTest.publicTestDir + "exampleFASTA.fasta",
+      " -i " + snpSeqBaseTest.publicTestDir + "exampleBAM.bam",
+      " -D " + snpSeqBaseTest.publicTestDir + "exampleDBSNP.vcf",
+      " -test ",
+      "-startFromScratch",
+      " -p " + projectName).mkString
+    spec.fileMD5s += testOut -> "45d97df6d291695b92668e8a55c54cd0"
+    PipelineTest.executeTest(spec)
+  }
 
+  //TODO Find out why the md5sum fails!
   @Test
   def testBWAPEBAM {
     val projectName = "test2"

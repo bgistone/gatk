@@ -10,6 +10,8 @@ import collection.JavaConversions._
 import net.sf.samtools.SAMFileReader
 import net.sf.samtools.SAMFileHeader.SortOrder
 
+import net.sf.picard.reference.IndexedFastaSequenceFile
+
 import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.queue.function.ListWriterFunction
 import org.broadinstitute.sting.commandline.Hidden
@@ -186,8 +188,6 @@ class DataProcessingPipeline extends QScript {
       val realignedBamFile = swapExt(bam, ".bam", "." + index + ".realigned.bam")
       val rgRealignedBamFile = swapExt(bam, ".bam", "." + index + ".realigned.rg.bam")
 
-      println("rgRealignedBamFile: " + rgRealignedBamFile)
-      
       if (useBWAse) {
         val revertedBAM = revertBAM(bam, true)
         add(bwa_aln_se(revertedBAM, saiFile1),
@@ -246,16 +246,18 @@ class DataProcessingPipeline extends QScript {
 
     // sets the model for the Indel Realigner
     cleanModelEnum = getIndelCleaningModel
-
-    // Get the bams to run on frm the cohort list.
-    val bams = QScriptUtils.createSeqFromFile(input)
-
-    // If the data should be realigned, perform the realignments, otherwise just go with the standard bams. 
-    val realignedBAMs = if (realign) {performAlignment(bams)} else {bams}    
-
-    // Check the number of contigs - after realignment if neccessary.
+       
+    // keep a record of the number of contigs in the first bam file in the list
+    val bams = QScriptUtils.createSeqFromFile(input) 
     if (nContigs < 0)
-    	nContigs = QScriptUtils.getNumberOfContigs(realignedBAMs(0))
+    	//nContigs = QScriptUtils.getNumberOfContigs(realignedBAMs(0))
+    {
+        val fastaFileIndex = new IndexedFastaSequenceFile(reference)
+        nContigs = fastaFileIndex.getSequenceDictionary().size()
+    }
+        
+    	
+    val realignedBAMs = if (realign) {performAlignment(bams)} else {bams}
     
     // generate a BAM file per sample joining all per lane files if necessary
     val sampleBAMFiles: Map[String, Seq[File]] = createSampleFiles(bams, realignedBAMs)
@@ -340,7 +342,7 @@ class DataProcessingPipeline extends QScript {
 
   // General arguments to GATK walkers
   trait CommandLineGATKArgs extends CommandLineGATK with ExternalCommonArgs {
-    this.reference_sequence = qscript.reference.getAbsoluteFile()
+    this.reference_sequence = qscript.reference
   }
 
   trait SAMargs extends PicardBamFunction with ExternalCommonArgs {
@@ -352,12 +354,12 @@ class DataProcessingPipeline extends QScript {
     this.num_threads = nbrOfThreads  
       
     if (cleanModelEnum != ConsensusDeterminationModel.KNOWNS_ONLY)
-      this.input_file = inBams.map(file => file.getAbsoluteFile())
+      this.input_file = inBams
     this.out = outIntervals
     this.mismatchFraction = 0.0
-    this.known ++= qscript.dbSNP.map(file => file.getAbsoluteFile())
+    this.known ++= qscript.dbSNP
     if (indels != null)
-      this.known ++= qscript.indels.map(file => file.getAbsoluteFile())
+      this.known ++= qscript.indels
     this.scatterCount = nContigs
     this.analysisName = queueLogDir + outIntervals + ".target"
     this.jobName = queueLogDir + outIntervals + ".target"
@@ -367,12 +369,12 @@ class DataProcessingPipeline extends QScript {
     
     //TODO This should probably be a core job since it does not support parallel exection.  
       
-    this.input_file = inBams.map(file => file.getAbsoluteFile())
+    this.input_file = inBams
     this.targetIntervals = tIntervals
     this.out = outBam
-    this.known ++= qscript.dbSNP.map(file => file.getAbsoluteFile())
+    this.known ++= qscript.dbSNP
     if (qscript.indels != null)
-      this.known ++= qscript.indels.map(file => file.getAbsoluteFile())
+      this.known ++= qscript.indels
     this.consensusDeterminationModel = cleanModelEnum
     this.compress = 0
     this.noPGTag = qscript.testMode;
@@ -388,7 +390,7 @@ class DataProcessingPipeline extends QScript {
     // Make sure to test this one this has been released.
     //this.num_threads = nbrOfThreads    
       
-    this.knownSites ++= qscript.dbSNP.map(file => file.getAbsoluteFile())
+    this.knownSites ++= qscript.dbSNP
     this.covariate ++= Seq("ReadGroupCovariate", "QualityScoreCovariate", "CycleCovariate", "ContextCovariate")
     this.input_file :+= inBam
     this.disable_indel_quals = true
@@ -455,7 +457,7 @@ class DataProcessingPipeline extends QScript {
   case class validate (inBam: File, outLog: File) extends ValidateSamFile with ExternalCommonArgs {
     this.input :+= inBam
     this.output = outLog
-    this.REFERENCE_SEQUENCE = qscript.reference.getAbsoluteFile()
+    this.REFERENCE_SEQUENCE = qscript.reference
     this.isIntermediate = false
     this.analysisName = queueLogDir + outLog + ".validate"
     this.jobName = queueLogDir + outLog + ".validate"
