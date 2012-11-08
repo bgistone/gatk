@@ -16,6 +16,7 @@ import org.broadinstitute.sting.utils.io.IOUtils
 /**
  * TODO
  * - Fix core/node optimization.
+ * 		This cannot be optimized further right now, as the the core programs require more memory. When uppmax upgrades, this will hopefully be possible.
  * - Look at the removing of intermediate bam failes part. Right now it seems that it removes the wrong files when re-running the script.
  */
 
