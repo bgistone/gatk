@@ -5,17 +5,15 @@ import org.broadinstitute.sting.queue.QScript
 import org.broadinstitute.sting.queue.extensions.picard._
 import org.broadinstitute.sting.gatk.walkers.indels.IndelRealigner.ConsensusDeterminationModel
 import org.broadinstitute.sting.utils.baq.BAQ.CalculationMode
-
 import collection.JavaConversions._
 import net.sf.samtools.SAMFileReader
 import net.sf.samtools.SAMFileHeader.SortOrder
-
 import net.sf.picard.reference.IndexedFastaSequenceFile
-
 import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.queue.function.ListWriterFunction
 import org.broadinstitute.sting.commandline.Hidden
 import org.broadinstitute.sting.commandline
+import java.io.FileNotFoundException
 
 /**
  * TODO
@@ -254,7 +252,11 @@ class DataProcessingPipeline extends QScript {
     	//nContigs = QScriptUtils.getNumberOfContigs(realignedBAMs(0))
     {
         val fastaFileIndex = new IndexedFastaSequenceFile(reference)
-        nContigs = fastaFileIndex.getSequenceDictionary().size()
+        
+        if(fastaFileIndex != null)
+        	nContigs = fastaFileIndex.getSequenceDictionary().size()
+        else
+            throw new FileNotFoundException("Could not find a index file for the reference: " + reference.toString)
     }
         
     	
