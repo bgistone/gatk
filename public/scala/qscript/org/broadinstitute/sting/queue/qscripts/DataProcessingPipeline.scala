@@ -251,12 +251,12 @@ class DataProcessingPipeline extends QScript {
     if (nContigs < 0)
     	//nContigs = QScriptUtils.getNumberOfContigs(realignedBAMs(0))
     {
-        val fastaFileIndex = new IndexedFastaSequenceFile(reference)
-        
-        if(fastaFileIndex != null)
-        	nContigs = fastaFileIndex.getSequenceDictionary().size()
-        else
-            throw new FileNotFoundException("Could not find a index file for the reference: " + reference.toString)
+        val fastaFileIndex = new IndexedFastaSequenceFile(reference)                
+        val seqDictionary = fastaFileIndex.getSequenceDictionary()
+    	nContigs = if (seqDictionary != null) 
+    	    			seqDictionary.size() 
+    				else 
+    				    throw new FileNotFoundException("Could not find a dict file for the reference: " + reference.toString + ". Make one using picards: CreateSequenceDictionary")         
     }
         
     	
