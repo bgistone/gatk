@@ -162,7 +162,7 @@ class AlignWithBWA extends QScript {
   	      val sortedBam = new File(outputDir + sampleName + ".bam")
 		  add(joinBams(sampleSams, joinedBam))		  
 		  add(sortSam(joinedBam, sortedBam, SortOrder.coordinate))
-		  add(removeIntermediateBamFiles(sampleSams))
+		  add(removeIntermediateBamFiles(sampleSams, sortedBam))
 		  sortedBam
   	}
   
@@ -212,8 +212,11 @@ class AlignWithBWA extends QScript {
   }
   
   // Remove the intermediate bam files created before joining them per sample.
-  case class removeIntermediateBamFiles(fileToBeRemoved: Seq[File]) extends InProcessFunction {   
+  // Note that this takes sortedBam as a input, because this should not run before the sortedBam function has finished
+  // successfully.
+  case class removeIntermediateBamFiles(fileToBeRemoved: Seq[File], sortedBam: Seq[File]) extends InProcessFunction {   
       @Input(doc="Temorary files that need to be removed.") var removeThese: Seq[File] = fileToBeRemoved
+      @Input(doc="Non-used input. Here to make sure clean-up does not happen before bams have been sucessfully sorted.") var sortedBamFiles: Seq[File] = sortedBam
       
       def run() {
     	  removeThese.foreach(file => {
