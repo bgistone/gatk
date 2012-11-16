@@ -145,6 +145,8 @@ class DataProcessingPipeline extends QScript {
       val header = samReader.getFileHeader
       val readGroups = header.getReadGroups
 
+      if(readGroups.isEmpty()) throw new RuntimeException("The bam file: " + bam + "does not contain a read group header. Please add one.")
+      
       // only allow one sample per file. Bam files with multiple samples would require pre-processing of the file
       // with PrintReads to separate the samples. Tell user to do it himself!
       assert(!QScriptUtils.hasMultipleSamples(readGroups), "The pipeline requires that only one sample is present in a BAM file. Please separate the samples in " + bam)
