@@ -50,7 +50,7 @@ class DataProcessingSnpSeqPipelineTest {
       " -i " + snpSeqBaseTest.publicTestDir + "exampleBAM.bam",
       " -D " + snpSeqBaseTest.publicTestDir + "exampleDBSNP.vcf",
       " -test ",
-      "-startFromScratch",
+      "-startFromScratch ",
       " -p " + projectName).mkString
     spec.fileMD5s += testOut -> "45d97df6d291695b92668e8a55c54cd0"
     PipelineTest.executeTest(spec)
@@ -73,7 +73,31 @@ class DataProcessingSnpSeqPipelineTest {
       " --realign ",
       " -bwa /usr/bin/bwa",
       " -bwape ",
-      "-startFromScratch",
+      "-startFromScratch ",
+      " -p " + projectName).mkString
+    spec.fileMD5s += testOut -> "9fca827ecc8436465b831bb6f879357a"
+    PipelineTest.executeTest(spec)
+  }
+  
+    //TODO Find out why the md5sum fails!
+  @Test
+  def testBWAPEBAMWithRevert {
+    val projectName = "test2"
+    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
+    val spec = new PipelineTestSpec
+    spec.jobRunners = Seq("Shell")
+    spec.name = "DataProcessingPipeline"
+    spec.args = Array(
+      " -S public/scala/qscript/org/broadinstitute/sting/queue/qscripts/DataProcessingPipeline.scala",
+      " -R " + snpSeqBaseTest.publicTestDir + "exampleFASTA.fasta",
+      " -i " + snpSeqBaseTest.publicTestDir + "exampleBAM.bam",
+      " -D " + snpSeqBaseTest.publicTestDir + "exampleDBSNP.vcf",
+      " -test ",
+      " --realign ",
+      " -bwa /usr/bin/bwa",
+      " -bwape ",
+      " --revert ",
+      "-startFromScratch ",
       " -p " + projectName).mkString
     spec.fileMD5s += testOut -> "9fca827ecc8436465b831bb6f879357a"
     PipelineTest.executeTest(spec)

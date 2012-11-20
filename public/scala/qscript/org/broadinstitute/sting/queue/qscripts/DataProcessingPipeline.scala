@@ -86,6 +86,8 @@ class DataProcessingPipeline extends QScript {
   @Argument(doc="Number of threads to use in thread enabled walkers. Default: 1", fullName="nbr_of_threads", shortName="nt", required=false)
   var nbrOfThreads: Int = 1
 
+  @Argument(doc="Remove old alignment/base recal/duplicate info from input bams before realigning.", fullName="revert", shortName="rev", required=false)
+  var revertBams: Boolean = false
   
   /****************************************************************************
   * Hidden Parameters
@@ -189,21 +191,21 @@ class DataProcessingPipeline extends QScript {
       val realignedBamFile = swapExt(bam, ".bam", "." + index + ".realigned.bam")
       val rgRealignedBamFile = swapExt(bam, ".bam", "." + index + ".realigned.rg.bam")
 
+      val runBAM = if (revertBams) revertBAM(bam, true) else bam
+      
       if (useBWAse) {
-        val revertedBAM = revertBAM(bam, true)
-        add(bwa_aln_se(revertedBAM, saiFile1),
-            bwa_sam_se(revertedBAM, saiFile1, realignedSamFile))
+        
+        add(bwa_aln_se(runBAM, saiFile1),
+            bwa_sam_se(runBAM, saiFile1, realignedSamFile))
       }
       else if (useBWApe) {
-        val revertedBAM = revertBAM(bam, true)
-        add(bwa_aln_pe(revertedBAM, saiFile1, 1),
-            bwa_aln_pe(revertedBAM, saiFile2, 2),
-            bwa_sam_pe(revertedBAM, saiFile1, saiFile2, realignedSamFile))
+        add(bwa_aln_pe(runBAM, saiFile1, 1),
+            bwa_aln_pe(runBAM, saiFile2, 2),
+            bwa_sam_pe(runBAM, saiFile1, saiFile2, realignedSamFile))
       }
       else if (useBWAsw) {
-        val revertedBAM = revertBAM(bam, false)
-        val fastQ = swapExt(revertedBAM, ".bam", ".fq")
-        add(convertToFastQ(revertedBAM, fastQ),
+        val fastQ = swapExt(runBAM, ".bam", ".fq")
+        add(convertToFastQ(runBAM, fastQ),
             bwa_sw(fastQ, realignedSamFile))
       }
       add(sortSam(realignedSamFile, realignedBamFile, SortOrder.coordinate))
