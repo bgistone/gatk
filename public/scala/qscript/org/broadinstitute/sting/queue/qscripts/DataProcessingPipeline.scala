@@ -392,10 +392,7 @@ class DataProcessingPipeline extends QScript {
 
   case class cov (inBam: File, outRecalFile: File) extends BaseRecalibrator with CommandLineGATKArgs {
     
-    // TODO The base quality recalibrator has had its multhi-threading disabled.
-    // According to the error message it gives, this is expected to be fixed by GATK verison 2.2
-    // Make sure to test this one this has been released.
-    //this.num_threads = nbrOfThreads    
+    this.num_threads = nbrOfThreads    
       
     this.knownSites ++= qscript.dbSNP
     this.covariate ++= Seq("ReadGroupCovariate", "QualityScoreCovariate", "CycleCovariate", "ContextCovariate")
@@ -406,9 +403,7 @@ class DataProcessingPipeline extends QScript {
     if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
     else if (qscript.intervals != null) this.intervals :+= qscript.intervals
     
-    // TODO Scatter/gatter functionallity needs to be disabled due to bug see: 
-    // http://gatkforums.broadinstitute.org/discussion/1560/notice-bug-affecting-bqsr-run-with-queue-scatter-gather#latest
-    // this.scatterCount = nContigs
+    this.scatterCount = nContigs
     this.analysisName = queueLogDir + outRecalFile + ".covariates"
     this.jobName = queueLogDir + outRecalFile + ".covariates"
   }
