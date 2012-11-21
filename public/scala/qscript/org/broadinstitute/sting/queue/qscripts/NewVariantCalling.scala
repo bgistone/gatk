@@ -5,6 +5,7 @@ import org.broadinstitute.sting.queue.QScript
 import org.broadinstitute.sting.gatk.phonehome.GATKRunReport
 import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.commandline.Hidden
+import java.io.IOException
 
 /**
  * TODO
@@ -112,10 +113,23 @@ class NewVariantCalling extends QScript {
   }
   
   object Resources {
-	  val dbsnp = new File(resources.getAbsolutePath() + "/" + "dbsnp_137.hg19.vcf.gz")
-	  val hapmap = new File(resources.getAbsolutePath() + "/" + "hapmap_3.3.hg19.vcf")
-	  val omni = new File(resources.getAbsolutePath() + "/" + "1000G_omni2.5.hg19.vcf")
-	  val mills = new File(resources.getAbsolutePath() + "/" + "Mills_and_1000G_gold_standard.indels.hg19.vcf")
+      //TODO When xml setup is implemented, get the path to the resource files from there.
+      val allFilesInResourceFiles = resources.getAbsolutePath().listFiles()
+      
+      // For each resource get the matching file
+      
+	  val dbsnp = getResourceFile(""".*dbsnp_137\.\w+\.vcf.gz""")
+	  val hapmap = getResourceFile("""hapmap_3.3\.\w+\.vcf""")
+	  val omni = getResourceFile("""1000G_omni2.5\.\w+\.vcf""")
+	  val mills = getResourceFile("""Mills_and_1000G_gold_standard.indels\.\w+\.vcf""")
+      
+      def getResourceFile(regexp: String): File = {
+          val resourceFile: Array[File] = allFilesInResourceFiles.filter(file => file.getName().matches(regexp))
+          if (resourceFile.length == 1)
+              resourceFile(0)
+          else
+              throw new IOException("Found more than one file matching regular expression: " + regexp + " found files: " + resourceFile.mkString(", "))
+      }
   }
 
   val lowPass: Boolean = true
