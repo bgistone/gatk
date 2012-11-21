@@ -127,8 +127,10 @@ class NewVariantCalling extends QScript {
           val resourceFile: Array[File] = allFilesInResourceFiles.filter(file => file.getName().matches(regexp))
           if (resourceFile.length == 1)
               resourceFile(0)
-          else
+          else if(resourceFile.length > 1)
               throw new IOException("Found more than one file matching regular expression: " + regexp + " found files: " + resourceFile.mkString(", "))
+          else
+              throw new IOException("Found no file matching regular expression.")
       }
   }
 
