@@ -37,6 +37,7 @@ class LocusScatterFunction extends GATKScatterFunction with InProcessFunction {
   def run() {
     val gi = GATKScatterFunction.getGATKIntervals(this.originalGATK)
     
+    logger.debug("Printing all the files found in gi:")
     gi.intervals.foreach(f => logger.debug(f))
     
     val splits = IntervalUtils.splitLocusIntervals(gi.locs, this.scatterOutputFiles.size)
