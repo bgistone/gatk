@@ -371,6 +371,8 @@ public final class GenomeLocParser {
     public GenomeLoc parseGenomeLoc(final String str) {
         // 'chr2', 'chr2:1000000' or 'chr2:1,000,000-2,000,000'
         //System.out.printf("Parsing location '%s'%n", str);
+        
+        logger.debug("parseGenomeLoc called for str: " + str);
 
         String contig = null;
         int start = 1;
