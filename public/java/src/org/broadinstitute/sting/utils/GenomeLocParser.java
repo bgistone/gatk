@@ -32,6 +32,8 @@ import net.sf.picard.reference.ReferenceSequenceFile;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
+import net.sf.samtools.util.RuntimeEOFException;
+
 import org.apache.log4j.Logger;
 import org.broad.tribble.Feature;
 import org.broadinstitute.sting.utils.codecs.vcf.VCFConstants;
@@ -403,9 +405,14 @@ public final class GenomeLocParser {
         if (!contigIsInDictionary(contig))
             throw new UserException.MalformedGenomeLoc("Contig '" + contig + "' does not match any contig in the GATK sequence dictionary derived from the reference; are you sure you are using the correct reference fasta file?");
 
-        if (stop == Integer.MAX_VALUE)
+        if (stop == Integer.MAX_VALUE){
             // lookup the actually stop position!
-            stop = getContigInfo(contig).getSequenceLength();
+            SAMSequenceRecord seqRec = getContigInfo(contig);
+            if(seqRec != null)
+                stop = seqRec.getSequenceLength();
+            else
+                throw new RuntimeException("Sequence record was null!");
+        }
 
         return createGenomeLoc(contig, getContigIndex(contig), start, stop, true);
     }
