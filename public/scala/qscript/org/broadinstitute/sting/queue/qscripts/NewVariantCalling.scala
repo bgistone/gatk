@@ -122,10 +122,10 @@ class NewVariantCalling extends QScript {
 
         // For each resource get the matching file
 
-        val dbsnp = getResourceFile(""".*dbsnp_137\.\w+\.vcf.gz""")
-        val hapmap = getResourceFile(""".*hapmap_3.3\.\w+\.vcf.gz""")
-        val omni = getResourceFile(""".*1000G_omni2.5\.\w+\.vcf.gz""")
-        val mills = getResourceFile(""".*Mills_and_1000G_gold_standard.indels\.\w+\.vcf.gz""")
+        val dbsnp = getResourceFile(""".*dbsnp_137\.\w+\.vcf""")
+        val hapmap = getResourceFile(""".*hapmap_3.3\.\w+\.vcf""")
+        val omni = getResourceFile(""".*1000G_omni2.5\.\w+\.vcf""")
+        val mills = getResourceFile(""".*Mills_and_1000G_gold_standard.indels\.\w+\.vcf""")
 
         logger.debug("Mapped dbsnp to: " + dbsnp)
         logger.debug("Mapped hapmap to: " + hapmap)
