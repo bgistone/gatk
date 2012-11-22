@@ -411,7 +411,7 @@ public final class GenomeLocParser {
             if(seqRec != null)
                 stop = seqRec.getSequenceLength();
             else
-                throw new RuntimeException("Sequence record was null!");
+                throw new RuntimeException("Sequence record was null, when looking for the contig: " + contig);
         }
 
         return createGenomeLoc(contig, getContigIndex(contig), start, stop, true);
