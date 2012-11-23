@@ -28,6 +28,7 @@ import org.broadinstitute.sting.queue.QScript
 import org.broadinstitute.sting.queue.extensions.gatk._
 import org.broadinstitute.sting.queue.util.QScriptUtils
 import org.broadinstitute.sting.gatk.walkers.genotyper.GenotypeLikelihoodsCalculationModel
+import org.broadinstitute.sting.commandline.Hidden
 
 /**
  * TODO
