@@ -78,42 +78,34 @@ class AlignWithBWA extends QScript {
 
     // Takes a list of processed BAM files and realign them using the BWA option requested  (bwase or bwape).
     // Returns a list of realigned BAM files.
-    def performAlignment(fastqs: ReadPairContainer, readGroupInfo: String, reference: File): File = {
+    def performAlignment(fastqs: ReadPairContainer, readGroupInfo: String, reference: File, isMultipleAligment: Boolean = false): File = {
 
         val saiFile1 = new File(outputDir + fastqs.sampleName + ".1.sai")
         val saiFile2 = new File(outputDir + fastqs.sampleName + ".2.sai")
-        var alignedSamFile = new File(outputDir + fastqs.sampleName)
-        //val alignedBamFile = new File(outputDir + fastqs.sampleName + ".bam")
+        //var alignedSamFile = new File(outputDir + fastqs.sampleName)
+        val alignedBamFile = new File(outputDir + fastqs.sampleName + ".bam")
 
         // Align for single end reads
         if (useBWAse) {
             // Add jobs to the qgraph
             add(bwa_aln_se(fastqs.mate1, saiFile1, reference),
-                bwa_sam_se(fastqs.mate1, saiFile1, alignedSamFile, readGroupInfo, reference))
+                bwa_sam_se(fastqs.mate1, saiFile1, alignedBamFile, readGroupInfo, reference, isMultipleAligment))
         } // Align for paried end reads
         else if (useBWApe) {
 
             // Check that there is actually a mate pair in the container.
             assert(fastqs.isMatePaired())
 
-            logger.debug("reference is: " + reference)
-            logger.debug("fastqs.mate1 is: " + fastqs.mate1)
-            logger.debug("fastqs.mate2 is: " + fastqs.mate2)
-
             // Add jobs to the qgraph
             add(bwa_aln_se(fastqs.mate1, saiFile1, reference),
                 bwa_aln_se(fastqs.mate2, saiFile2, reference),
-                bwa_sam_pe(fastqs.mate1, fastqs.mate2, saiFile1, saiFile2, alignedSamFile, readGroupInfo, reference))
+                bwa_sam_pe(fastqs.mate1, fastqs.mate2, saiFile1, saiFile2, alignedBamFile, readGroupInfo, reference, isMultipleAligment))
         } // Align for long single end reads using SW
         else if (useBWAsw) {
             // Add jobs to the qgraph
-            add(bwa_sw(fastqs.mate1, alignedSamFile, reference))
+            add(bwa_sw(fastqs.mate1, alignedBamFile, reference, isMultipleAligment))
         }
-        //add(sortSam(alignedSamFile, alignedBamFile, SortOrder.coordinate))	
-
-        //return alignedBamFile
-        alignedSamFile = new File(alignedSamFile + ".bam")
-        return alignedSamFile
+        return alignedBamFile
     }
 
     /**
@@ -161,17 +153,19 @@ class AlignWithBWA extends QScript {
             checkReferenceIsBwaIndexed(reference)
 
             // Run the alignment
-            sampleSams :+= performAlignment(fastqs, readGroupInfo, reference)
+            sampleSams :+= performAlignment(fastqs, readGroupInfo, reference, isMultipleAligment = true)
         }
 
         // Join and sort the sample bam files.
-        val joinedBam = new File(outputDir + sampleName + ".joined.unsorted.bam")
-        val sortedBam = new File(outputDir + sampleName + ".joined.bam")
-        add(joinBams(sampleSams, joinedBam))
+        val joinedBam = new File(outputDir + sampleName + ".bam")
+        val joinedFilesIndex = new File(outputDir + sampleName + ".bai")
+        //val sortedBam = new File(outputDir + sampleName + ".joined.bam")
+        add(joinBams(sampleSams, joinedBam, joinedFilesIndex))
         //add(sortSam(joinedBam, sortedBam, SortOrder.coordinate))
         //add(removeIntermediateBamFiles(sampleSams, sortedBam))
-        add(removeIntermediateBamFiles(sampleSams, joinedBam))
-        sortedBam
+        //add(removeIntermediateBamFiles(sampleSams, joinedBam, joinedFilesIndex))
+        //sortedBam
+        joinedBam
     }
 
     /**
@@ -224,10 +218,11 @@ class AlignWithBWA extends QScript {
     // Remove the intermediate bam files created before joining them per sample.
     // Note that this takes sortedBam as a input, because this should not run before the sortedBam function has finished
     // successfully.
-    case class removeIntermediateBamFiles(fileToBeRemoved: Seq[File], sortedBam: File) extends InProcessFunction {
+    case class removeIntermediateBamFiles(fileToBeRemoved: Seq[File], joinedBam: File, index: File) extends InProcessFunction {
         @Input(doc = "Temorary files that need to be removed.") var removeThese: Seq[File] = fileToBeRemoved
-        @Input(doc = "Non-used input. Here to make sure clean-up does not happen before bams have been sucessfully sorted.") var sortedBamFiles: File = sortedBam
-
+        @Input(doc = "Non-used input. Here to make sure clean-up does not happen before bams have been sucessfully sorted.") var sortedBamFiles: File = joinedBam
+        @Input(doc = "Non-used input. Here to make sure clean-up does not happen before bams have been sucessfully sorted.") var sortedBamIndex: File = index
+        
         def run() {
             removeThese.foreach(file => {
                 // Remove both the bam files and their indexes.
@@ -237,13 +232,14 @@ class AlignWithBWA extends QScript {
         }
     }
 
-    case class joinBams(inBams: Seq[File], outBam: File) extends MergeSamFiles with ExternalCommonArgs {              
+    case class joinBams(inBams: Seq[File], outBam: File, index: File) extends MergeSamFiles with ExternalCommonArgs {              
         this.input = inBams               
         this.output = outBam
+        this.outputIndex = index
         
         this.analysisName = "joinBams"
         this.jobName = "joinBams"
-        this.isIntermediate = true
+        this.isIntermediate = false
     }
 
     // Find suffix array coordinates of single end reads
@@ -260,23 +256,23 @@ class AlignWithBWA extends QScript {
     }
 
     // Perform alignment of single end reads
-    case class bwa_sam_se(fastq: File, inSai: File, outBam: File, readGroupInfo: String, reference: File) extends CommandLineFunction with ExternalCommonArgs {
+    case class bwa_sam_se(fastq: File, inSai: File, outBam: File, readGroupInfo: String, reference: File, intermediate: Boolean = false) extends CommandLineFunction with ExternalCommonArgs {
         @Input(doc = "fastq file to be aligned") var mate1 = fastq
         @Input(doc = "bwa alignment index file") var sai = inSai
         @Input(doc = "reference") var ref = reference
         @Output(doc = "output aligned bam file") var alignedBam = outBam
 
         // The output from this is a samfile, which can be removed later
-        this.isIntermediate = true
+        this.isIntermediate = intermediate
 
         def commandLine = bwaPath + " samse " + ref + " " + sai + " " + mate1 + " -r " + readGroupInfo +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam
+            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "")
         this.analysisName = "bwa_sam_se"
         this.jobName = "bwa_sam_se"
     }
 
     // Perform alignment of paired end reads
-    case class bwa_sam_pe(fastq1: File, fastq2: File, inSai1: File, inSai2: File, outBam: File, readGroupInfo: String, reference: File) extends CommandLineFunction with ExternalCommonArgs {
+    case class bwa_sam_pe(fastq1: File, fastq2: File, inSai1: File, inSai2: File, outBam: File, readGroupInfo: String, reference: File, intermediate: Boolean = false) extends CommandLineFunction with ExternalCommonArgs {
         @Input(doc = "fastq file with mate 1 to be aligned") var mate1 = fastq1
         @Input(doc = "fastq file with mate 2 file to be aligned") var mate2 = fastq2
         @Input(doc = "bwa alignment index file for 1st mating pair") var sai1 = inSai1
@@ -285,22 +281,26 @@ class AlignWithBWA extends QScript {
         @Output(doc = "output aligned bam file") var alignedBam = outBam
 
         // The output from this is a samfile, which can be removed later
-        this.isIntermediate = true
+        this.isIntermediate = intermediate
 
         def commandLine = bwaPath + " sampe " + ref + " " + sai1 + " " + sai2 + " " + mate1 + " " + mate2 +
             " -r " + readGroupInfo +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam
+            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "")
         this.analysisName = "bwa_sam_pe"
         this.jobName = "bwa_sam_pe"
     }
 
     // Perform Smith-Watherman aligment of single end reads
-    case class bwa_sw(inFastQ: File, outBam: File, reference: File) extends CommandLineFunction with ExternalCommonArgs {
+    case class bwa_sw(inFastQ: File, outBam: File, reference: File, intermediate: Boolean = false) extends CommandLineFunction with ExternalCommonArgs {
         @Input(doc = "fastq file to be aligned") var fq = inFastQ
         @Input(doc = "reference") var ref = reference
         @Output(doc = "output bam file") var bam = outBam
+        
+        // The output from this is a samfile, which can be removed later
+        this.isIntermediate = intermediate
+        
         def commandLine = bwaPath + " bwasw -t " + bwaThreads + " " + ref + " " + fq +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + bam
+            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + bam.getAbsoluteFile().replace(".bam", "")
         this.analysisName = "bwasw"
         this.jobName = "bwasw"
     }
