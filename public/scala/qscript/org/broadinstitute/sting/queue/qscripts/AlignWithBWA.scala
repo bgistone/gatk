@@ -159,12 +159,7 @@ class AlignWithBWA extends QScript {
         // Join and sort the sample bam files.
         val joinedBam = new File(outputDir + sampleName + ".bam")
         val joinedFilesIndex = new File(outputDir + sampleName + ".bai")
-        //val sortedBam = new File(outputDir + sampleName + ".joined.bam")
         add(joinBams(sampleSams, joinedBam, joinedFilesIndex))
-        //add(sortSam(joinedBam, sortedBam, SortOrder.coordinate))
-        //add(removeIntermediateBamFiles(sampleSams, sortedBam))
-        //add(removeIntermediateBamFiles(sampleSams, joinedBam, joinedFilesIndex))
-        //sortedBam
         joinedBam
     }
 
