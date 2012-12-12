@@ -28,7 +28,7 @@ class AlignmentQC extends QScript {
      * **************************************************************************
      */
     
-    @Input(doc = "UPPMAX project id", fullName = "project_id", shortName = "pid", required = false)
+    @Argument(doc = "UPPMAX project id", fullName = "project_id", shortName = "pid", required = false)
     var projId: String = _
 
     @Input(doc = "an intervals file to be used by GATK - output bams at intervals only", fullName = "gatk_interval_file", shortName = "intervals", required = false)
