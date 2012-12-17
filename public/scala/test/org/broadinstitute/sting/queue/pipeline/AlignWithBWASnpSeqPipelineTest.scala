@@ -36,7 +36,7 @@ class AlignWithBWASnpSeqPipelineTest {
             }
             case _ => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-                val md5 = "4451f6599fce29ea2612a3a87fb2ec59"
+                val md5 = "6c9333a9ab0266758b2eb6a28e8438a7"
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
@@ -76,7 +76,7 @@ class AlignWithBWASnpSeqPipelineTest {
             }
             case _ => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-                val md5 = "8ece3ccce3b2c83dc6ebbcac98c16caf"
+                val md5 = "2de23711aac1a82639c6c827a7e500dd"
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
@@ -110,12 +110,12 @@ class AlignWithBWASnpSeqPipelineTest {
         runOnUppmax match {
             case true => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");                                
-                val md5 = "00a8b168ab0c242406e54f9243d60211"                
+                val md5 = "d5300404fde12c139a9e9e8b1c09b304"                
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
             case _ => {
                 val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-                val md5 = "00a8b168ab0c242406e54f9243d60211"
+                val md5 = "d5300404fde12c139a9e9e8b1c09b304"
                 Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
             }
         }                     							   
@@ -155,7 +155,7 @@ class AlignWithBWASnpSeqPipelineTest {
         }
         case _ => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-            val md5 = "c0be0a282bd20b1300adfe55b6b3a488"
+            val md5 = "3a08932e07599ccb7b1c9ee5603fe469"
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
     }                     							   
@@ -197,7 +197,7 @@ class AlignWithBWASnpSeqPipelineTest {
         }
         case _ => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-            val md5 = "9774391df9f3e9825757139699ac09f6"
+            val md5 = "04c19d2a45b49f9a8bcf4e0289421ab6"
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
     }                     							   

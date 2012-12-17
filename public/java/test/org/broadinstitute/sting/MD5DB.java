@@ -51,7 +51,7 @@ public class MD5DB {
     private static final int MAX_RECORDS_TO_READ = 1000000;
     private static final int MAX_RAW_DIFFS_TO_SUMMARIZE = -1;
     public static final String LOCAL_MD5_DB_DIR = "integrationtests";
-    public static final String GLOBAL_MD5_DB_DIR = "/humgen/gsa-hpprojects/GATK/data/integrationtests";
+    public static final String GLOBAL_MD5_DB_DIR = "/data/SnpSeqPipelineIntegrationTestsDatabase";
 
     // tracking and emitting a data file of origina and new md5s
     private final File MD5MismatchesFile;
