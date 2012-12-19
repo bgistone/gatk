@@ -9,88 +9,91 @@ import java.io.IOException
 
 /**
  * TODO
- * - Clean ut the argument list
+ * - Clean up the argument list
  */
 
 class NewVariantCalling extends QScript {
-    qscript =>               
+    qscript =>
 
-    /****************************************************************************
+    /**
+     * **************************************************************************
      * Required Parameters
-     ****************************************************************************/
+     * **************************************************************************
+     */
 
-    @Input(doc="input BAM file - or list of BAM files", fullName="input", shortName="i", required=true)
-    var input: File = _  
+    @Input(doc = "input BAM file - or list of BAM files", fullName = "input", shortName = "i", required = true)
+    var input: File = _
 
-    @Input(doc="Reference fasta file", fullName="reference", shortName="R", required=true)
-    var reference: File = _ 
+    @Input(doc = "Reference fasta file", fullName = "reference", shortName = "R", required = true)
+    var reference: File = _
 
-    @Input(doc="Location of resource files such as dbSnp, hapmap, etc.", fullName="resources", shortName="res", required=true)
-    var resources: File = _	
+    @Input(doc = "Location of resource files such as dbSnp, hapmap, etc.", fullName = "resources", shortName = "res", required = true)
+    var resources: File = _
 
-    /****************************************************************************
+    /**
+     * **************************************************************************
      * Optional Parameters
-     ****************************************************************************/
+     * **************************************************************************
+     */
 
-    @Argument(doc="the project name determines the final output (vcf file) base name. Example NA12878 yields NA12878.vcf", fullName="project", shortName="p", required=false)
+    @Argument(doc = "the project name determines the final output (vcf file) base name. Example NA12878 yields NA12878.vcf", fullName = "project", shortName = "p", required = false)
     var projectName: String = "project"
 
-    @Argument(doc="If the project is a low pass project", fullName="lowpass", shortName="lp", required=false)
+    @Argument(doc = "If the project is a low pass project", fullName = "lowpass", shortName = "lp", required = false)
     var isLowpass: Boolean = false
 
-    @Argument(doc="If the project is a exome sequencing project", fullName="isExome", shortName="ie", required=false)
+    @Argument(doc = "If the project is a exome sequencing project", fullName = "isExome", shortName = "ie", required = false)
     var isExome: Boolean = false
 
-    @Argument(doc="Run the analysis for each bam file seperatly. By default all samples will be analyzed together", fullName="analyze_separatly", shortName="analyzeSeparatly", required=false)
+    @Argument(doc = "Run the analysis for each bam file seperatly. By default all samples will be analyzed together", fullName = "analyze_separatly", shortName = "analyzeSeparatly", required = false)
     var runSeparatly = false
 
-    @Argument(shortName="outputDir", doc="output directory", required=false)
-    var outputDir: String = "./"      
+    @Argument(shortName = "outputDir", doc = "output directory", required = false)
+    var outputDir: String = "./"
 
-    @Argument(shortName="skipCalling", doc="skip the calling part of the pipeline and only run VQSR on preset, gold standard VCF files", required=false)
+    @Argument(shortName = "skipCalling", doc = "skip the calling part of the pipeline and only run VQSR on preset, gold standard VCF files", required = false)
     var skipCalling: Boolean = false
 
-    @Argument(shortName="runGoldStandard", doc="run the pipeline with the goldstandard VCF files for comparison", required=false)
+    @Argument(shortName = "runGoldStandard", doc = "run the pipeline with the goldstandard VCF files for comparison", required = false)
     var runGoldStandard: Boolean = false
 
-    @Argument(shortName="noBAQ", doc="turns off BAQ calculation", required=false)
+    @Argument(shortName = "noBAQ", doc = "turns off BAQ calculation", required = false)
     var noBAQ: Boolean = false
 
-    @Argument(shortName="noIndels", doc="do not call indels with the Unified Genotyper", required=false)
+    @Argument(shortName = "noIndels", doc = "do not call indels with the Unified Genotyper", required = false)
     var noIndels: Boolean = false
 
-    @Argument(shortName="mbq", doc="The minimum Phred-Scaled quality score threshold to be considered a good base.", required=false)
+    @Argument(shortName = "mbq", doc = "The minimum Phred-Scaled quality score threshold to be considered a good base.", required = false)
     var minimumBaseQuality: Int = -1
 
-    @Argument(shortName="deletions", doc="Maximum deletion fraction allowed at a site to call a genotype.", required=false)
+    @Argument(shortName = "deletions", doc = "Maximum deletion fraction allowed at a site to call a genotype.", required = false)
     var deletions: Double = -1
 
-    @Argument(shortName="sample", doc="Samples to include in Variant Eval", required=false)
-    var samples: List[String] = Nil 
+    @Argument(shortName = "sample", doc = "Samples to include in Variant Eval", required = false)
+    var samples: List[String] = Nil
 
     @Hidden
-    @Argument(doc="How many ways to scatter/gather", fullName="scatter_gather", shortName="sg", required=false)
+    @Argument(doc = "How many ways to scatter/gather", fullName = "scatter_gather", shortName = "sg", required = false)
     var nContigs: Int = -1
 
-    @Argument(doc="Number of threads to use in thread enabled walkers. Default: 1", fullName="nbr_of_threads", shortName="nt", required=false)
+    @Argument(doc = "Number of threads to use in thread enabled walkers. Default: 1", fullName = "nbr_of_threads", shortName = "nt", required = false)
     var nbrOfThreads: Int = 1
-
 
     /**
      * Help class handling each variant calling target. Storing input files, creating output filenames etc.
      */
     class Target(
-            val baseName: String,
-            val reference: File,
-            val dbsnpFile: String,
-            val hapmapFile: String,
-            val bamList: File,
-            val goldStandard_VCF: File,
-            val intervals: String,
-            val isLowpass: Boolean,
-            val isExome: Boolean,
-            val nSamples: Int) {
-        
+        val baseName: String,
+        val reference: File,
+        val dbsnpFile: String,
+        val hapmapFile: String,
+        val bamList: File,
+        val goldStandard_VCF: File,
+        val intervals: String,
+        val isLowpass: Boolean,
+        val isExome: Boolean,
+        val nSamples: Int) {
+
         val name = qscript.outputDir + baseName
         val clusterFile = new File(name + ".clusters")
         val rawSnpVCF = new File(name + ".raw.vcf")
@@ -121,7 +124,6 @@ class NewVariantCalling extends QScript {
         val allFilesInResourceFiles = resources.getAbsolutePath().listFiles()
 
         // For each resource get the matching file
-
         val dbsnp = getResourceFile(""".*dbsnp_137\.\w+\.vcf""")
         val hapmap = getResourceFile(""".*hapmap_3.3\.\w+\.vcf""")
         val omni = getResourceFile(""".*1000G_omni2.5\.\w+\.vcf""")
@@ -137,22 +139,22 @@ class NewVariantCalling extends QScript {
 
             if (resourceFile.length == 1)
                 resourceFile(0)
-            else if(resourceFile.length > 1)
+            else if (resourceFile.length > 1)
                 throw new IOException("Found more than one file matching regular expression: " + regexp + " found files: " + resourceFile.mkString(", "))
             else
                 throw new IOException("Found no file matching regular expression: " + regexp)
         }
     }
 
-    val lowPass: Boolean = true
-    val exome: Boolean = true
-    val indels: Boolean = true
+//    val lowPass: Boolean = true
+//    val exome: Boolean = true
+//    val indels: Boolean = true
 
     val queueLogDir = ".qlog/"
 
     def script = {
 
-        val bams = QScriptUtils.createSeqFromFile(input)	  
+        val bams = QScriptUtils.createSeqFromFile(input)
 
         // By default scatter over the contigs
         if (nContigs < 0)
@@ -161,23 +163,28 @@ class NewVariantCalling extends QScript {
         //TODO Make sure that empty interval lists are handled correctly	
 
         val targets = if (!runSeparatly)
-                          Seq(new Target(projectName,	reference, Resources.dbsnp,	Resources.hapmap, input, Resources.mills, intervals = "", isLowpass, isExome, bams.size))
-                      else
-                          bams.map(bam => new Target(projectName,	reference, Resources.dbsnp,	Resources.hapmap, bam, Resources.mills, intervals = "", isLowpass, isExome, bams.size))				
+            Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals = "", isLowpass, isExome, bams.size))
+        else
+            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals = "", isLowpass, isExome, bams.size))
 
-        //TODO Fix and figure out the whole golden standard question
 
         for (target <- targets) {
-            if( !skipCalling ) {
-                if (!noIndels) 
-                    add(new indelCall(target), new indelRecal(target), new indelCut(target), new indelEvaluation(target))
-                    add(new snpCall(target))
-                    add(new snpRecal(target, false))
-                    add(new snpCut(target, false))
-                    add(new snpEvaluation(target))
+            if (!skipCalling) {
+                if (!noIndels) {
+                    // Indel calling, recalibration and evaulation
+                    add(new indelCall(target))
+                    add(new indelRecal(target))
+                    add(new indelCut(target))
+                    add(new indelEvaluation(target))
+                }
+                // SNP calling, recalibration and evaluation
+                add(new snpCall(target))
+                add(new snpRecal(target))
+                add(new snpCut(target))
+                add(new snpEvaluation(target))
             }
         }
-        
+
     }
 
     trait UNIVERSAL_GATK_ARGS extends CommandLineGATK {
@@ -188,44 +195,44 @@ class NewVariantCalling extends QScript {
     def bai(bam: File) = new File(bam + ".bai")
 
     // 1.) Unified Genotyper Base
-    class GenotyperBase (t: Target) extends UnifiedGenotyper with UNIVERSAL_GATK_ARGS {
+    class GenotyperBase(t: Target) extends UnifiedGenotyper with UNIVERSAL_GATK_ARGS {
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
         this.scatterCount = nContigs
         this.nt = nbrOfThreads
-        this.dcov = if ( t.isLowpass ) { 50 } else { 250 }
-        this.stand_call_conf = if ( t.isLowpass ) { 4.0 } else { 30.0 }
-        this.stand_emit_conf = if ( t.isLowpass ) { 4.0 } else { 30.0 }
+        this.dcov = if (t.isLowpass) { 50 } else { 250 }
+        this.stand_call_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
+        this.stand_emit_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
         this.input_file :+= t.bamList
         this.D = new File(t.dbsnpFile)
     }
 
     // 1a.) Call SNPs with UG
-    class snpCall (t: Target) extends GenotyperBase(t) {
+    class snpCall(t: Target) extends GenotyperBase(t) {
         if (minimumBaseQuality >= 0)
             this.min_base_quality_score = minimumBaseQuality
         if (qscript.deletions >= 0)
             this.max_deletion_fraction = qscript.deletions
-            
+
         this.out = t.rawSnpVCF
         this.glm = org.broadinstitute.sting.gatk.walkers.genotyper.GenotypeLikelihoodsCalculationModel.Model.SNP
-        this.baq = if (noBAQ ||  t.isExome) {org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.OFF} else {org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.CALCULATE_AS_NECESSARY}
+        this.baq = if (noBAQ || t.isExome) { org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.OFF } else { org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.CALCULATE_AS_NECESSARY }
         this.analysisName = t.name + "_UGs"
-        this.jobName =  queueLogDir + t.name + ".snpcall"
+        this.jobName = queueLogDir + t.name + ".snpcall"
     }
 
     // 1b.) Call Indels with UG
-    class indelCall (t: Target) extends GenotyperBase(t) {
+    class indelCall(t: Target) extends GenotyperBase(t) {
         this.memoryLimit = 6
         this.out = t.rawIndelVCF
         this.glm = org.broadinstitute.sting.gatk.walkers.genotyper.GenotypeLikelihoodsCalculationModel.Model.INDEL
         this.baq = org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.OFF
         this.analysisName = t.name + "_UGi"
-        this.jobName =  queueLogDir + t.name + ".indelcall"
+        this.jobName = queueLogDir + t.name + ".indelcall"
     }
 
     // 2.) Hard Filtering for indels
-    class indelFilter (t: Target) extends VariantFiltration with UNIVERSAL_GATK_ARGS {
+    class indelFilter(t: Target) extends VariantFiltration with UNIVERSAL_GATK_ARGS {
         this.memoryLimit = 2
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
@@ -234,14 +241,14 @@ class NewVariantCalling extends QScript {
         this.out = t.filteredIndelVCF
         this.filterName ++= List("IndelQD", "IndelReadPosRankSum", "IndelFS")
         this.filterExpression ++= List("QD < 2.0", "ReadPosRankSum < -20.0", "FS > 200.0")
-        
+
         if (t.nSamples >= 10) {
             this.filterName ++= List("IndelInbreedingCoeff")
-                    this.filterExpression ++= List("InbreedingCoeff < -0.8")
+            this.filterExpression ++= List("InbreedingCoeff < -0.8")
         }
-        
+
         this.analysisName = t.name + "_VF"
-        this.jobName =  queueLogDir + t.name + ".indelfilter"
+        this.jobName = queueLogDir + t.name + ".indelfilter"
     }
 
     class VQSRBase(t: Target) extends VariantRecalibrator with UNIVERSAL_GATK_ARGS {
@@ -249,36 +256,41 @@ class NewVariantCalling extends QScript {
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
         this.allPoly = true
-        this.tranche ++= List("100.0", "99.9", "99.5", "99.3", "99.0", "98.9", "98.8", "98.5", "98.4", "98.3", "98.2", "98.1", "98.0", "97.9", "97.8", "97.5", "97.0", "95.0", "90.0")  
+        this.tranche ++= List("100.0", "99.9", "99.5", "99.3", "99.0", "98.9", "98.8", "98.5", "98.4", "98.3", "98.2", "98.1", "98.0", "97.9", "97.8", "97.5", "97.0", "95.0", "90.0")
     }
 
-    class snpRecal(t: Target, goldStandard: Boolean) extends VQSRBase(t) with UNIVERSAL_GATK_ARGS {
-        this.input :+= ( if ( goldStandard ) { t.goldStandard_VCF } else { t.rawSnpVCF } )
+    class snpRecal(t: Target) extends VQSRBase(t) with UNIVERSAL_GATK_ARGS {
 
-        //TODO Check that these resources are setup in the correct way.
-        this.resource :+= new TaggedFile( Resources.hapmap, "known=false,training=true,truth=true,prior=15.0" )
-        this.resource :+= new TaggedFile( Resources.omni, "known=false,training=true,truth=true,prior=12.0" )    
-        this.resource :+= new TaggedFile( Resources.dbsnp, "known=true,prior=6.0" )
+        this.input :+= t.rawSnpVCF
+
+        // Whole Genome sequencing
+        this.resource :+= new TaggedFile(Resources.hapmap, "known=false,training=true,truth=true,prior=15.0")
+        this.resource :+= new TaggedFile(Resources.omni, "known=false,training=true,truth=true,prior=12.0")
+        this.resource :+= new TaggedFile(Resources.dbsnp, "known=true,training=false,truth=false,prior=6.0")
 
         this.use_annotation ++= List("QD", "HaplotypeScore", "MQRankSum", "ReadPosRankSum", "MQ", "FS")
-        if(t.nSamples >= 10)
-            this.use_annotation ++= List("InbreedingCoeff")  // InbreedingCoeff is a population-wide statistic that requires at least 10 samples to calculate
-    
-        if(!t.isExome) 
+        if (t.nSamples >= 10)
+            this.use_annotation ++= List("InbreedingCoeff") // InbreedingCoeff is a population-wide statistic that requires at least 10 samples to calculate
+
+        if (!t.isExome)
             this.use_annotation ++= List("DP")
-        else {                                               // exome specific parameters
-            // TODO Fix up the exome case 
+        else { // exome specific parameters 
+
             this.mG = 6
-            if(t.nSamples <= 3) {                            // very few exome samples means very few variants
+
+            this.resource :+= new TaggedFile(Resources.hapmap, "known=false,training=true,truth=true,prior=15.0")
+            this.resource :+= new TaggedFile(Resources.omni, "known=false,training=true,truth=false,prior=12.0")
+            this.resource :+= new TaggedFile(Resources.dbsnp, "known=true,training=false,truth=false,prior=6.0")
+
+            if (t.nSamples <= 3) { // very few exome samples means very few variants
                 this.mG = 4
                 this.percentBad = 0.04
             }
         }
-        
-        //TODO Check this
-        this.tranches_file = if ( goldStandard ) { t.goldStandardTranchesFile } else { t.tranchesSnpFile }
-        //TODO Check this
-        this.recal_file = if ( goldStandard ) { t.goldStandardRecalFile } else { t.recalSnpFile }
+
+        this.tranches_file = t.tranchesSnpFile
+        this.recal_file = t.recalSnpFile
+
         this.rscript_file = t.vqsrSnpRscript
         this.mode = org.broadinstitute.sting.gatk.walkers.variantrecalibration.VariantRecalibratorArgumentCollection.Mode.SNP
         this.analysisName = t.name + "_VQSRs"
@@ -286,13 +298,20 @@ class NewVariantCalling extends QScript {
     }
 
     class indelRecal(t: Target) extends VQSRBase(t) with UNIVERSAL_GATK_ARGS {
+
+        // Note that for indel recalication the same settings are used both for WGS and Exome Seq.
+
         this.input :+= t.rawIndelVCF
-        this.resource :+= new TaggedFile(Resources.mills, "known=false,training=true,truth=true,prior=12.0" )
-        this.resource :+= new TaggedFile( Resources.dbsnp, "known=true,prior=2.0" )
+        this.resource :+= new TaggedFile(Resources.mills, "known=true,training=true,truth=true,prior=12.0")
         this.use_annotation ++= List("QD", "HaplotypeScore", "ReadPosRankSum", "FS")
-        if(t.nSamples >= 10)
-            this.use_annotation ++= List("InbreedingCoeff")  // InbreedingCoeff is a population-wide statistic that requires at least 10 samples to calculate
-            
+
+        this.mG = 4
+        this.std = 10
+        this.percentBad = 0.12
+
+        if (t.nSamples >= 10)
+            this.use_annotation ++= List("InbreedingCoeff") // InbreedingCoeff is a population-wide statistic that requires at least 10 samples to calculate
+
         this.tranches_file = t.tranchesIndelFile
         this.recal_file = t.recalIndelFile
         this.rscript_file = t.vqsrIndelRscript
@@ -301,18 +320,20 @@ class NewVariantCalling extends QScript {
         this.jobName = queueLogDir + t.name + ".indelrecal"
     }
 
-
     // 4.) Apply the recalibration table to the appropriate tranches
-    class applyVQSRBase (t: Target) extends ApplyRecalibration with UNIVERSAL_GATK_ARGS {
+    class applyVQSRBase(t: Target) extends ApplyRecalibration with UNIVERSAL_GATK_ARGS {
         this.memoryLimit = 6
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
     }
 
-    class snpCut (t: Target, goldStandard: Boolean) extends applyVQSRBase(t) {
-        this.input :+= ( if ( goldStandard ) { t.goldStandard_VCF } else { t.rawSnpVCF } )
-        this.tranches_file = if ( goldStandard ) { t.goldStandardTranchesFile } else { t.tranchesSnpFile}
-        this.recal_file = if ( goldStandard ) { t.goldStandardRecalFile } else { t.recalSnpFile }
+    class snpCut(t: Target) extends applyVQSRBase(t) {
+
+        this.input :+= t.rawSnpVCF
+        this.tranches_file = t.tranchesSnpFile
+        this.recal_file = t.recalSnpFile
+
+        // By default this is 99.0
         // this.ts_filter_level = t.snpTrancheTarget
         this.mode = org.broadinstitute.sting.gatk.walkers.variantrecalibration.VariantRecalibratorArgumentCollection.Mode.SNP
         this.out = t.recalibratedSnpVCF
@@ -320,10 +341,11 @@ class NewVariantCalling extends QScript {
         this.jobName = queueLogDir + t.name + ".snpcut"
     }
 
-    class indelCut (t: Target) extends applyVQSRBase(t) {
+    class indelCut(t: Target) extends applyVQSRBase(t) {
         this.input :+= t.rawIndelVCF
         this.tranches_file = t.tranchesIndelFile
         this.recal_file = t.recalIndelFile
+        // By default this is 99.0
         //this.ts_filter_level = t.indelTranchTarget
         this.mode = org.broadinstitute.sting.gatk.walkers.variantrecalibration.VariantRecalibratorArgumentCollection.Mode.INDEL
         this.out = t.recalibratedIndelVCF
@@ -331,11 +353,10 @@ class NewVariantCalling extends QScript {
         this.jobName = queueLogDir + t.name + ".indelcut"
     }
 
-
     // 5.) Variant Evaluation Base(OPTIONAL)
     class EvalBase(t: Target) extends VariantEval with UNIVERSAL_GATK_ARGS {
         this.memoryLimit = 3
-        this.comp :+= new TaggedFile(t.hapmapFile, "hapmap" )
+        this.comp :+= new TaggedFile(t.hapmapFile, "hapmap")
         this.D = new File(t.dbsnpFile)
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
@@ -347,7 +368,7 @@ class NewVariantCalling extends QScript {
         // TODO Setup resonable comparisson file
         //if (t.reference == b37 || t.reference == hg19) this.comp :+= new TaggedFile( omni_b37, "omni" )
         this.eval :+= t.recalibratedSnpVCF
-        this.out =  t.evalFile
+        this.out = t.evalFile
         this.analysisName = t.name + "_VEs"
         this.jobName = queueLogDir + t.name + ".snpeval"
     }
@@ -359,10 +380,11 @@ class NewVariantCalling extends QScript {
         // TODO Setup resonable comparisson file
         //this.comp :+= new TaggedFile(indelGoldStandardCallset, "indelGS" )
         this.noEV = true
-        this.evalModule = List("CompOverlap", "CountVariants", "TiTvVariantEvaluator", "ValidationReport", "IndelStatistics")
-        this.out =  t.evalIndelFile
+        //TODO Check, if no eval modules are assigned, the standard ones are used.
+        //this.evalModule = List("CompOverlap", "CountVariants", "TiTvVariantEvaluator", "ValidationReport", "IndelStatistics")
+        this.out = t.evalIndelFile
         this.analysisName = t.name + "_VEi"
         this.jobName = queueLogDir + queueLogDir + t.name + ".indeleval"
-        }
-    
+    }
+
 }
