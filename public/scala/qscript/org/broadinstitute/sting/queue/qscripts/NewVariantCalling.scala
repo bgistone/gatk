@@ -188,7 +188,7 @@ class NewVariantCalling extends QScript {
     }
 
     trait UNIVERSAL_GATK_ARGS extends CommandLineGATK {
-        logging_level = "INFO";
+        logging_level = "DEBUG"
         memoryLimit = 4;
     }
 
@@ -345,6 +345,7 @@ class NewVariantCalling extends QScript {
         this.input :+= t.rawIndelVCF
         this.tranches_file = t.tranchesIndelFile
         this.recal_file = t.recalIndelFile
+        
         // By default this is 99.0
         //this.ts_filter_level = t.indelTranchTarget
         this.mode = org.broadinstitute.sting.gatk.walkers.variantrecalibration.VariantRecalibratorArgumentCollection.Mode.INDEL
