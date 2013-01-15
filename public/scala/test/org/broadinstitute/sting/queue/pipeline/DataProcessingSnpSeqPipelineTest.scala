@@ -37,7 +37,7 @@ class DataProcessingSnpSeqPipelineTest {
   val snpSeqBaseTest = new SnpSeqBaseTest()  
     
   //TODO Find out why the md5sum fails!  
-  @Test
+  @Test(timeOut=36000000)
   def testSimpleBAM {
     val projectName = "test1"
     val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
@@ -57,7 +57,7 @@ class DataProcessingSnpSeqPipelineTest {
   }
 
   //TODO Find out why the md5sum fails!
-  @Test
+  @Test(timeOut=36000000)
   def testBWAPEBAM {
     val projectName = "test2"
     val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
