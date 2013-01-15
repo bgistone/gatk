@@ -57,67 +57,39 @@ class AlignWithTophat extends QScript {
     /**
      * Help methods
      */
-    // Takes a list of processed BAM files and realign them using the BWA option requested  (bwase or bwape).
-    // Returns a list of realigned BAM files.
-    def performAlignment(fastqs: ReadPairContainer, readGroupInfo: String, reference: File, isMultipleAligment: Boolean = false): File = {
 
-        val sampleDir = new File(outputDir + fastqs.sampleName)
+    def performAlignment(sampleName: String, fastqs: Seq[ReadPairContainer], reference: File): File = {
+
+        // All fastqs input to this function should be from the same sample
+        // and should all be aligned to the same reference.
+        val sampleDir = new File(outputDir + fastqs(0).sampleName)
         sampleDir.mkdirs()
-        
-        var alignedBamFile: File = new File(sampleDir + "/" + "find_files")
+        var alignedBamFile: File = new File(sampleDir + "/" + "accepted_hits.bam")
 
         val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
 
+        val fastq1stMate = fastqs.map(container => container.mate1)         
+        val fastq2ndMate = fastqs.map(container => container.mate2)
+        
         //tophat(fastq1: File, fastq2: File, sampleOutputDir: File, reference: File, intermediate: Boolean, jobOutputFile: File)
-        add(tophat(fastqs.mate1, fastqs.mate2, sampleDir, reference, isMultipleAligment, placeHolderFile))
+        add(tophat(fastq1stMate, fastq2ndMate, sampleDir, reference, placeHolderFile))
 
-        // Add inprocess function to find all the bams matching accepted_hits.bam
-        add(findAcceptedBams(sampleDir, alignedBamFile, placeHolderFile))
 
         return alignedBamFile
     }
 
-    private def alignSingleSample(sample: SampleAPI): File = {
-        val fastqs = sample.getFastqs()
-        val readGroupInfo = sample.getReadGroupInformation()
-        val reference = sample.getReference()
-
-        // Check that the reference is indexed
-        // TODO Check that there is a bowtie reference
+    private def alignSample(sampleName: String, samples: Seq[SampleAPI]): File = {
+        val fastqs = samples.map(_.getFastqs())
+        val reference = if (samples.filter(p => {
+            val pathToFirstReference = samples(0).getReference().getAbsolutePath()
+            p.getReference.getAbsolutePath().equals(pathToFirstReference)
+            }).size == 1)
+            samples(0).getReference()
+        else
+            throw new Exception("AlignWithTophat requires all instances of the same sample is aligned to the same reference.")
 
         // Run the alignment
-        performAlignment(fastqs, readGroupInfo, reference)
-    }
-
-    private def alignMultipleSamples(sampleName: String, sampleList: Seq[SampleAPI]): File = {
-
-        // List of output bams for all inputs from the same sample
-        var sampleSams: Seq[File] = Seq()
-
-        // Counter for temporary sample names.
-        var tempCounter: Int = 1
-
-        for (sample <- sampleList) {
-            val fastqs = sample.getFastqs()
-            val readGroupInfo = sample.getReadGroupInformation()
-            val reference = sample.getReference()
-
-            // Add temporary run name
-            fastqs.sampleName = sampleName + "." + tempCounter
-            tempCounter = tempCounter + 1
-
-            // Check that the reference is indexed
-            // TODO Check that there is a bowtie reference
-
-            // Run the alignment
-            sampleSams :+= performAlignment(fastqs, readGroupInfo, reference, isMultipleAligment = true)
-        }
-
-        // Join and sort the sample bam files.
-        val joinedBam = new File(outputDir + sampleName + ".bam")
-        val joinedFilesIndex = new File(outputDir + sampleName + ".bai")
-        add(joinBams(sampleSams, joinedBam, joinedFilesIndex))
-        joinedBam
+        performAlignment(sampleName, fastqs, reference)
     }
 
     /**
@@ -139,12 +111,7 @@ class AlignWithTophat extends QScript {
 
         for ((sampleName, sampleList) <- samples) {
 
-            // One sample can be sequenced in multiple lanes. This handles that scenario.
-            val bam: File =
-                if (sampleList.size == 1)
-                    alignSingleSample(sampleList.get(0))
-                else
-                    alignMultipleSamples(sampleName, sampleList)
+            val bam: File = alignSample(sampleName, sampleList)
 
             // Add the resulting file of the alignment to the output list
             cohortList :+= bam
@@ -185,33 +152,24 @@ class AlignWithTophat extends QScript {
         this.isIntermediate = false
     }
 
-    case class tophat(fastq1: File, fastq2: File, sampleOutputDir: File, reference: File, intermediate: Boolean, outputFile: File) extends CommandLineFunction with ExternalCommonArgs {
+    case class tophat(fastqs1: Seq[File], fastqs2: Seq[File], sampleOutputDir: File, reference: File, outputFile: File) extends CommandLineFunction with ExternalCommonArgs {
 
         // Sometime this should be kept, sometimes it shouldn't
-        this.isIntermediate = intermediate
+        this.isIntermediate = false
 
-        @Input var file1 = fastq1
-        @Input var file2 = fastq2
+        @Input var files1 = fastqs1
+        @Input var files2 = fastqs2
         @Input var dir = sampleOutputDir
         @Input var ref = reference
 
         @Output var stdOut = outputFile
 
+        // This handles if there are multiple files holding each mate.
+        val files1CommaSepString = files1.mkString(",")
+        val files2CommaSepString = files2.mkString(",")
+
         def commandLine = tophatPath + " -p " + tophatThreads +
-            " --output-dir " + dir + " " + ref + " " + file1 + " " + " " + file2 +
+            " --output-dir " + dir + " " + ref + " " + files1CommaSepString + " " + files2CommaSepString +
             " 1> " + stdOut
     }
-
-    case class findAcceptedBams(dirToSearchIn: File, bamFile: File, placeHolder: File) extends InProcessFunction {
-        @Input var dir: File = dirToSearchIn
-        @Input var ph: File = placeHolder
-        @Output var output = bamFile
-
-        def run() {
-            val acceptedBamFiles = dir.listFiles().filter({_.getName().equals("accepted_hits.bam")})
-            println("acceptedBamFiles " + acceptedBamFiles + " size: " + acceptedBamFiles.size)
-            output = new File(dirToSearchIn + "/accepted_hits.bam")
-        }
-    }
-
 }
