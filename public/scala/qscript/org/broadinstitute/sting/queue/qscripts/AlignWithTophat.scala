@@ -58,7 +58,7 @@ class AlignWithTophat extends QScript {
      * Help methods
      */
 
-    def performAlignment(sampleName: String, fastqs: Seq[ReadPairContainer], reference: File): File = {
+    def performAlignment(sampleName: String, fastqs: Seq[ReadPairContainer], reference: File): (File, File) = {
 
         // All fastqs input to this function should be from the same sample
         // and should all be aligned to the same reference.
@@ -71,14 +71,12 @@ class AlignWithTophat extends QScript {
         val fastq1stMate = fastqs.map(container => container.mate1)         
         val fastq2ndMate = fastqs.map(container => container.mate2)
         
-        //tophat(fastq1: File, fastq2: File, sampleOutputDir: File, reference: File, intermediate: Boolean, jobOutputFile: File)
         add(tophat(fastq1stMate, fastq2ndMate, sampleDir, reference, placeHolderFile))
 
-
-        return alignedBamFile
+        return (alignedBamFile, placeHolderFile)
     }
 
-    private def alignSample(sampleName: String, samples: Seq[SampleAPI]): File = {
+    private def alignSample(sampleName: String, samples: Seq[SampleAPI]): (File, File) = {
         val fastqs = samples.map(_.getFastqs())
         val reference = if (samples.filterNot(p => {
             val pathToFirstReference = samples(0).getReference().getAbsolutePath()
@@ -100,27 +98,25 @@ class AlignWithTophat extends QScript {
 
         // final output list of bam files
         var cohortList: Seq[File] = Seq()
+        var placeHolderList: Seq[File] = Seq()
 
         val setupReader: SetupXMLReader = new SetupXMLReader(input)
 
         val samples: Map[String, Seq[SampleAPI]] = setupReader.getSamples()
         projId = setupReader.getUppmaxProjectId()
 
-        // TODO Set BOWTIE_INDEXES environment variable
-        // It seems that this is done easiest throw the sh script running
-        // the qscript
-
         for ((sampleName, sampleList) <- samples) {
 
-            val bam: File = alignSample(sampleName, sampleList)
+            val (bam: File, placeHolder: File) = alignSample(sampleName, sampleList)
 
+            placeHolderList :+= placeHolder
             // Add the resulting file of the alignment to the output list
             cohortList :+= bam
         }
 
         // output a BAM list with all the processed files
         val cohortFile = new File(qscript.outputDir + setupReader.getProjectName() + ".cohort.list")
-        add(writeList(cohortList, cohortFile))
+        add(writeList(cohortList, cohortFile, placeHolderList))
 
     }
 
@@ -136,21 +132,15 @@ class AlignWithTophat extends QScript {
         this.isIntermediate = false
     }
 
-    case class writeList(inBams: Seq[File], outBamList: File) extends ListWriterFunction {
+    case class writeList(inBams: Seq[File], outBamList: File, placeHolder: Seq[File]) extends ListWriterFunction {
+        
+        @Input
+        val ph = placeHolder
+        
         this.inputFiles = inBams
         this.listFile = outBamList
         this.analysisName = "bamList"
         this.jobName = "bamList"
-    }
-
-    case class joinBams(inBams: Seq[File], outBam: File, index: File) extends MergeSamFiles with ExternalCommonArgs {
-        this.input = inBams
-        this.output = outBam
-        this.outputIndex = index
-
-        this.analysisName = "joinBams"
-        this.jobName = "joinBams"
-        this.isIntermediate = false
     }
 
     case class tophat(fastqs1: Seq[File], fastqs2: Seq[File], sampleOutputDir: File, reference: File, outputFile: File) extends CommandLineFunction with ExternalCommonArgs {
