@@ -80,10 +80,11 @@ class AlignWithTophat extends QScript {
 
     private def alignSample(sampleName: String, samples: Seq[SampleAPI]): File = {
         val fastqs = samples.map(_.getFastqs())
-        val reference = if (samples.filter(p => {
+        val reference = if (samples.filterNot(p => {
             val pathToFirstReference = samples(0).getReference().getAbsolutePath()
-            p.getReference.getAbsolutePath().equals(pathToFirstReference)
-            }).size == 1)
+            val currentReference = p.getReference.getAbsolutePath()
+            currentReference.equals(pathToFirstReference)
+            }).size == 0)
             samples(0).getReference()
         else
             throw new Exception("AlignWithTophat requires all instances of the same sample is aligned to the same reference.")
