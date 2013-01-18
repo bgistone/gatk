@@ -129,10 +129,7 @@ class AlignWithBWA extends QScript {
         checkReferenceIsBwaIndexed(reference)
 
         // Run the alignment
-        val bam = performAlignment(fastqs, readGroupInfo, reference)
-        val bamindex = new File(outputDir + sample.getSampleName + ".bai")
-        //add(index(bam, bamindex))        
-        bam
+        performAlignment(fastqs, readGroupInfo, reference)        
     }
 
     private def alignMultipleSamples(sampleName: String, sampleList: Seq[SampleAPI]): File = {
@@ -320,10 +317,5 @@ class AlignWithBWA extends QScript {
         this.sortOrder = sortOrderP
         this.analysisName = "sortSam"
         this.jobName = "sortSam"
-    }
-    
-    case class index(inputBam: File, outputIndex: File) extends BuildBamIndex with ExternalCommonArgs {
-        this.input = Seq(inputBam)
-        this.output = outputIndex
-    }
+    }    
 }
