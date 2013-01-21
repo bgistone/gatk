@@ -403,7 +403,7 @@ class DataProcessingPipeline extends QScript {
 
     case class cov(inBam: File, outRecalFile: File) extends BaseRecalibrator with CommandLineGATKArgs {
 
-        this.num_threads = nbrOfThreads
+        this.num_cpu_threads_per_data_thread  = nbrOfThreads
 
         this.knownSites ++= qscript.dbSNP
         this.covariate ++= Seq("ReadGroupCovariate", "QualityScoreCovariate", "CycleCovariate", "ContextCovariate")
