@@ -129,7 +129,7 @@ class AlignWithBWA extends QScript {
         checkReferenceIsBwaIndexed(reference)
 
         // Run the alignment
-        performAlignment(fastqs, readGroupInfo, reference)
+        performAlignment(fastqs, readGroupInfo, reference)        
     }
 
     private def alignMultipleSamples(sampleName: String, sampleList: Seq[SampleAPI]): File = {
@@ -250,6 +250,10 @@ class AlignWithBWA extends QScript {
         this.jobName = "bwa_aln_se"
     }
 
+    // Help function to create samtools sorting and indexing paths
+    def sortAndIndex(alignedBam: File): String = " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "") + ";" +
+    samtoolsPath + " index " + alignedBam.getAbsoluteFile() 
+    
     // Perform alignment of single end reads
     case class bwa_sam_se(fastq: File, inSai: File, outBam: File, readGroupInfo: String, reference: File, intermediate: Boolean = false) extends CommandLineFunction with ExternalCommonArgs {
         @Input(doc = "fastq file to be aligned") var mate1 = fastq
@@ -261,7 +265,7 @@ class AlignWithBWA extends QScript {
         this.isIntermediate = intermediate
 
         def commandLine = bwaPath + " samse " + ref + " " + sai + " " + mate1 + " -r " + readGroupInfo +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "")
+            sortAndIndex(alignedBam)
         this.analysisName = "bwa_sam_se"
         this.jobName = "bwa_sam_se"
     }
@@ -280,7 +284,7 @@ class AlignWithBWA extends QScript {
 
         def commandLine = bwaPath + " sampe " + ref + " " + sai1 + " " + sai2 + " " + mate1 + " " + mate2 +
             " -r " + readGroupInfo +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "")
+            sortAndIndex(alignedBam)
         this.analysisName = "bwa_sam_pe"
         this.jobName = "bwa_sam_pe"
     }
@@ -295,7 +299,7 @@ class AlignWithBWA extends QScript {
         this.isIntermediate = intermediate
         
         def commandLine = bwaPath + " bwasw -t " + bwaThreads + " " + ref + " " + fq +
-            " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + bam.getAbsoluteFile().replace(".bam", "")
+             sortAndIndex(bam)
         this.analysisName = "bwasw"
         this.jobName = "bwasw"
     }
@@ -313,5 +317,5 @@ class AlignWithBWA extends QScript {
         this.sortOrder = sortOrderP
         this.analysisName = "sortSam"
         this.jobName = "sortSam"
-    }
+    }    
 }
