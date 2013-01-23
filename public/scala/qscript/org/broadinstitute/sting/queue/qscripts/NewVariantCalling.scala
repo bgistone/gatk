@@ -45,6 +45,9 @@ class NewVariantCalling extends QScript {
     @Argument(doc = "If the project is a exome sequencing project", fullName = "isExome", shortName = "ie", required = false)
     var isExome: Boolean = false
 
+    @Input(doc = "an intervals file to be used by GATK - output bams at intervals only", fullName = "gatk_interval_file", shortName = "intervals", required = false)
+    var intervals: File = _
+
     @Argument(doc = "Run the analysis for each bam file seperatly. By default all samples will be analyzed together", fullName = "analyze_separatly", shortName = "analyzeSeparatly", required = false)
     var runSeparatly = false
 
@@ -146,9 +149,9 @@ class NewVariantCalling extends QScript {
         }
     }
 
-//    val lowPass: Boolean = true
-//    val exome: Boolean = true
-//    val indels: Boolean = true
+    //    val lowPass: Boolean = true
+    //    val exome: Boolean = true
+    //    val indels: Boolean = true
 
     val queueLogDir = ".qlog/"
 
@@ -160,13 +163,10 @@ class NewVariantCalling extends QScript {
         if (nContigs < 0)
             nContigs = QScriptUtils.getNumberOfContigs(bams(0))
 
-        //TODO Make sure that empty interval lists are handled correctly	
-
         val targets = if (!runSeparatly)
-            Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals = "", isLowpass, isExome, bams.size))
+            Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals, isLowpass, isExome, bams.size))
         else
-            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals = "", isLowpass, isExome, bams.size))
-
+            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, bams.size))
 
         for (target <- targets) {
             if (!skipCalling) {
@@ -189,7 +189,10 @@ class NewVariantCalling extends QScript {
 
     trait UNIVERSAL_GATK_ARGS extends CommandLineGATK {
         logging_level = "DEBUG"
-        memoryLimit = 4;
+        this.memoryLimit = 24
+        
+        //TODO Add this when migrating to xml setup for all the scripts
+        //this.jobNativeArgs +:= "-p node -A " + projId
     }
 
     def bai(bam: File) = new File(bam + ".bai")
@@ -223,7 +226,6 @@ class NewVariantCalling extends QScript {
 
     // 1b.) Call Indels with UG
     class indelCall(t: Target) extends GenotyperBase(t) {
-        this.memoryLimit = 6
         this.out = t.rawIndelVCF
         this.glm = org.broadinstitute.sting.gatk.walkers.genotyper.GenotypeLikelihoodsCalculationModel.Model.INDEL
         this.baq = org.broadinstitute.sting.utils.baq.BAQ.CalculationMode.OFF
@@ -233,7 +235,6 @@ class NewVariantCalling extends QScript {
 
     // 2.) Hard Filtering for indels
     class indelFilter(t: Target) extends VariantFiltration with UNIVERSAL_GATK_ARGS {
-        this.memoryLimit = 2
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
         this.scatterCount = nContigs
@@ -322,7 +323,6 @@ class NewVariantCalling extends QScript {
 
     // 4.) Apply the recalibration table to the appropriate tranches
     class applyVQSRBase(t: Target) extends ApplyRecalibration with UNIVERSAL_GATK_ARGS {
-        this.memoryLimit = 6
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
     }
@@ -345,7 +345,7 @@ class NewVariantCalling extends QScript {
         this.input :+= t.rawIndelVCF
         this.tranches_file = t.tranchesIndelFile
         this.recal_file = t.recalIndelFile
-        
+
         // By default this is 99.0
         //this.ts_filter_level = t.indelTranchTarget
         this.mode = org.broadinstitute.sting.gatk.walkers.variantrecalibration.VariantRecalibratorArgumentCollection.Mode.INDEL
@@ -356,7 +356,6 @@ class NewVariantCalling extends QScript {
 
     // 5.) Variant Evaluation Base(OPTIONAL)
     class EvalBase(t: Target) extends VariantEval with UNIVERSAL_GATK_ARGS {
-        this.memoryLimit = 3
         this.comp :+= new TaggedFile(t.hapmapFile, "hapmap")
         this.D = new File(t.dbsnpFile)
         this.reference_sequence = t.reference
