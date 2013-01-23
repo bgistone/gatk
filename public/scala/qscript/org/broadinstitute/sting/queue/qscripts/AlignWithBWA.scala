@@ -198,7 +198,7 @@ class AlignWithBWA extends QScript {
 
     /**
      * **************************************************************************
-     * Case classes - used by qgrapth to setup the job run order.
+     * Case classes - used by qgraph to setup the job run order.
      * **************************************************************************
      */
 
