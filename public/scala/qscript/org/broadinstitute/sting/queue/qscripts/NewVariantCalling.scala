@@ -97,7 +97,7 @@ class NewVariantCalling extends QScript {
         val isExome: Boolean,
         val nSamples: Int) {
 
-        val name = qscript.outputDir + baseName
+        val name = qscript.outputDir.getAbsolutePath() + baseName
         val clusterFile = new File(name + ".clusters")
         val rawSnpVCF = new File(name + ".raw.vcf")
         val rawIndelVCF = new File(name + ".raw.indel.vcf")
@@ -165,8 +165,9 @@ class NewVariantCalling extends QScript {
 
         val targets = if (!runSeparatly)
             Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals, isLowpass, isExome, bams.size))
-        else
-            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, bams.size))
+        else{
+            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, 1))            
+            }
 
         for (target <- targets) {
             if (!skipCalling) {
