@@ -166,7 +166,7 @@ class NewVariantCalling extends QScript {
         val targets = if (!runSeparatly)
             Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals, isLowpass, isExome, bams.size))
         else{
-            bams.map(bam => new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, 1))            
+            bams.map(bam => new Target(bam.getName(), reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, 1))            
             }
 
         for (target <- targets) {
