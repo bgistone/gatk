@@ -81,6 +81,9 @@ class NewVariantCalling extends QScript {
 
     @Argument(doc = "Number of threads to use in thread enabled walkers. Default: 1", fullName = "nbr_of_threads", shortName = "nt", required = false)
     var nbrOfThreads: Int = 1
+    
+    @Argument(doc = "Downsample fraction. [0.0 - 1.0]", fullName = "downsample_to_fraction", shortName = "dtf", required = false)
+    var downsampleFraction: Double = -1
 
     /**
      * Help class handling each variant calling target. Storing input files, creating output filenames etc.
@@ -200,6 +203,7 @@ class NewVariantCalling extends QScript {
 
     // 1.) Unified Genotyper Base
     class GenotyperBase(t: Target) extends UnifiedGenotyper with UNIVERSAL_GATK_ARGS {
+        this.downsample_to_fraction = if(downsampleFraction != -1) downsampleFraction else 1;
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
         this.scatterCount = nContigs
