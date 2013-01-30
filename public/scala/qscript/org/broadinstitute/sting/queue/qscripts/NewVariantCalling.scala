@@ -203,12 +203,16 @@ class NewVariantCalling extends QScript {
 
     // 1.) Unified Genotyper Base
     class GenotyperBase(t: Target) extends UnifiedGenotyper with UNIVERSAL_GATK_ARGS {
-        this.downsample_to_fraction = if(downsampleFraction != -1) downsampleFraction else 1;
+        
+        if(downsampleFraction != -1)
+            this.downsample_to_fraction = downsampleFraction
+        else 
+            this.dcov = if (t.isLowpass) { 50 } else { 250 }
+
         this.reference_sequence = t.reference
         this.intervalsString ++= List(t.intervals)
         this.scatterCount = nContigs
-        this.nt = nbrOfThreads
-        this.dcov = if (t.isLowpass) { 50 } else { 250 }
+        this.nt = nbrOfThreads        
         this.stand_call_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
         this.stand_emit_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
         this.input_file :+= t.bamList
