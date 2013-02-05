@@ -40,7 +40,7 @@ class DataProcessingSnpSeqPipelineTest {
   @Test(timeOut=36000000)
   def testSimpleBAM {
     val projectName = "test1"
-    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
+    val testOut = projectName + ".exampleBAM.clean.dedup.recal.bam"
     val spec = new PipelineTestSpec
     spec.jobRunners = Seq("Shell")
     spec.name = "DataProcessingPipeline"
@@ -60,7 +60,7 @@ class DataProcessingSnpSeqPipelineTest {
   @Test(timeOut=36000000)
   def testBWAPEBAM {
     val projectName = "test2"
-    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
+    val testOut = projectName + ".exampleBAM.clean.dedup.recal.bam"
     val spec = new PipelineTestSpec
     spec.jobRunners = Seq("Shell")
     spec.name = "DataProcessingPipeline"
@@ -83,7 +83,7 @@ class DataProcessingSnpSeqPipelineTest {
   @Test
   def testBWAPEBAMWithRevert {
     val projectName = "test2"
-    val testOut = projectName + ".exampleBAM.bam.clean.dedup.recal.bam"
+    val testOut = projectName + ".exampleBAM.clean.dedup.recal.bam"
     val spec = new PipelineTestSpec
     spec.jobRunners = Seq("Shell")
     spec.name = "DataProcessingPipeline"
