@@ -19,9 +19,6 @@ class Cufflinks extends QScript {
     // TODO Write better input
     @Input(doc = "input", fullName = "input", shortName = "i", required = true)
     var input: File = _
-    
-    @Input(doc = "Reference fasta file", fullName = "reference", shortName = "R", required = true)
-    var reference: File = _
 
     /**
      * **************************************************************************
@@ -29,11 +26,17 @@ class Cufflinks extends QScript {
      * **************************************************************************
      */
 
+    @Input(doc = "Reference fasta file", fullName = "reference", shortName = "R", required = false)
+    var reference: File = _
+
     @Input(doc = "The path to the binary of cufflinks", fullName = "path_to_cufflinks", shortName = "cufflinks", required = false)
     var cufflinksPath: File = _
 
     @Argument(doc = "Output path for the processedfiles.", fullName = "output_directory", shortName = "outputDir", required = false)
     var outputDir: String = ""
+
+    @Argument(doc = "Number of threads to use", fullName = "threads", shortName = "nt", required = false)
+    var threads: Int = 1
 
     //TODO Add cufflinks specific stuff
 
@@ -80,8 +83,8 @@ class Cufflinks extends QScript {
 
         // Then cuffmerge -s /seqdata/fastafiles/hg19/hg19.fa assemblies.txt
         // assemblies: File, outputDir: File, reference: File, outputFile: File
-        val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
-        add(cuffmerge(transcriptList, outputDir, reference, placeHolderFile))               
+        //val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
+        //add(cuffmerge(transcriptList, outputDir, reference, placeHolderFile))               
     }
 
     // General arguments to non-GATK tools
@@ -96,7 +99,7 @@ class Cufflinks extends QScript {
 
         @Input val ph = placeHolder
         this.listFile = transcriptList
-        this.inputFiles = outputDirList.map(file => {file.getAbsolutePath() + "/transcripts.gtf"})
+        this.inputFiles = outputDirList.map(file => { file.getAbsolutePath() + "/transcripts.gtf" })
         this.analysisName = "writeTranscriptList"
         this.jobName = "writeTranscriptList"
 
@@ -112,12 +115,12 @@ class Cufflinks extends QScript {
         @Output var stdOut = outputFile
 
         //cufflinks -o cufflinks_brain tophat_brain/accepted_hits.bam        
-        def commandLine = "cufflinks -o " + sampleOutputDir + " " + bamFile +
+        def commandLine = "cufflinks -p " + threads + " -o " + sampleOutputDir + " " + bamFile +
             " 1> " + stdOut
     }
-    
+
     case class cuffmerge(assemblies: File, outputDir: File, reference: File, outputFile: File) extends CommandLineFunction with ExternalCommonArgs {
-        
+
         // Sometime this should be kept, sometimes it shouldn't
         this.isIntermediate = false
 
@@ -125,11 +128,10 @@ class Cufflinks extends QScript {
         @Input var dir = outputDir
         @Input var ref = reference
         @Output var stdOut = outputFile
-        
-        
+
         //cuffmerge -s /seqdata/fastafiles/hg19/hg19.fa assemblies.txt
-        def commandLine = "cuffmerge -o " + dir + " -s " + ref + " " + assemblies +
+        def commandLine = "cuffmerge -p " + threads + " -o " + dir + " -s " + ref + " " + assemblies +
             " 1> " + stdOut
-        
+
     }
 }
