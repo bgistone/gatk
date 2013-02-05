@@ -1,7 +1,6 @@
 package qscript.org.broadinstitute.sting.queue.qscripts
 
 import org.broadinstitute.sting.queue.QScript
-import org.broadinstitute.sting.queue.QScript
 import scala.xml._
 import collection.JavaConversions._
 import org.broadinstitute.sting.queue.extensions.picard._
