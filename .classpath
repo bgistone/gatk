@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="settings/repository/net.sf.snpeff/snpeff-2.0.5.jar"/>
 	<classpathentry kind="lib" path="settings/repository/net.sf/picard-1.67.1197.jar"/>
 	<classpathentry kind="lib" path="settings/repository/net.sf/sam-1.67.1197.jar"/>
-	<classpathentry kind="lib" path="settings/repository/org.broad/tribble-110.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"/>
