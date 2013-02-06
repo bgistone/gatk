@@ -51,7 +51,11 @@ class Cufflinks extends QScript {
     def createOutputDir(file: File) = {
         val outDir = {
             val basename = file.getName().replace(".bam", "")
-            if (outputDir == "") new File(basename) else new File(outputDir + "/" + basename)
+            if (outputDir == "") {
+                new File("cufflinks/" + basename)
+            } else {
+                new File(outputDir + "/cufflinks/" + basename)
+            }
         }
         outDir.mkdirs()
         outDir
@@ -78,13 +82,13 @@ class Cufflinks extends QScript {
             outputDirList :+= outDir
         }
 
-        val transcriptList = new File(qscript.outputDir + "transcript.cohort.list")
+        val transcriptList = new File(qscript.outputDir + "cufflinks_transcript.cohort.list")
         add(writeTranscriptList(transcriptList, outputDirList, placeHolderList))
 
         // Then cuffmerge -s /seqdata/fastafiles/hg19/hg19.fa assemblies.txt
         // assemblies: File, outputDir: File, reference: File, outputFile: File
-        //val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
-        //add(cuffmerge(transcriptList, outputDir, reference, placeHolderFile))               
+        val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
+        add(cuffmerge(transcriptList, outputDir + "/cuffmerge/", reference, placeHolderFile))
     }
 
     // General arguments to non-GATK tools
