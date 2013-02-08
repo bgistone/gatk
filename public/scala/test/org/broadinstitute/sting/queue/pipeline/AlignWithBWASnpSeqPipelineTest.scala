@@ -155,17 +155,17 @@ class AlignWithBWASnpSeqPipelineTest {
         }
         case _ => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-            val md5 = "3a08932e07599ccb7b1c9ee5603fe469"
+            val md5 = Seq("d8867a7264261573a15793dead163d24", "3a08932e07599ccb7b1c9ee5603fe469", "c106f36d82c2fe72d72308d77ce085bd")
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
     }                     							   
   }
-  
+
   @Test(dataProvider="testSameSampleInMoreThanOneRunFolderDataProvider")
-  def SameSampleInMoreThanOneRunFolder(envSetup: EnvironmentSetup, md5sum: String) {
+  def SameSampleInMoreThanOneRunFolder(envSetup: EnvironmentSetup, md5sum: Seq[String]) {
     val projectName = "test"
     val testOut = "1.bam"
-    val spec = new PipelineTestSpec()
+    val spec = new MultipleOutcomeTestSpec()
   
     spec.jobRunners = envSetup.jobrunner
     
@@ -192,12 +192,12 @@ class AlignWithBWASnpSeqPipelineTest {
         case true => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Drmaa"), "/bubo/sw/apps/bioinfo/bwa/0.6.2/kalkyl/bwa");
             //TODO Fix new md5s
-            val md5 = ""                
+            val md5 = Seq("")                
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
         case _ => {
             val envSetup = EnvironmentSetup(pathToScript, Seq("Shell"), "/usr/bin/bwa");
-            val md5 = "04c19d2a45b49f9a8bcf4e0289421ab6"
+            val md5 = Seq("04c19d2a45b49f9a8bcf4e0289421ab6", "6f8020376e7d6e46a231bc3efa0e9fa1", "0ed6b1302636d6b5d62e89416c6283bc")
             Array(Array(envSetup, md5)).asInstanceOf[Array[Array[Object]]]
         }
     }                     							   
@@ -205,10 +205,10 @@ class AlignWithBWASnpSeqPipelineTest {
  
   //TODO Fix this!
   @Test(dataProvider="testSameSampleAcrossSeveralLanesDataProvider")
-  def testSameSampleAcrossSeveralLanes(envSetup: EnvironmentSetup, md5sum: String) {
+  def testSameSampleAcrossSeveralLanes(envSetup: EnvironmentSetup, md5sum: Seq[String]) {
     val projectName = "test"
     val testOut = "1.bam"
-    val spec = new PipelineTestSpec()
+    val spec = new MultipleOutcomeTestSpec()
   
     spec.jobRunners = envSetup.jobrunner
     

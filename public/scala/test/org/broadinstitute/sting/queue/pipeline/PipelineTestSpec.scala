@@ -24,38 +24,46 @@
 
 package org.broadinstitute.sting.queue.pipeline
 
-class PipelineTestSpec(var name: String = null) {
+abstract class GeneralPipelineTestSpec(var name: String = null) {
 
-  /** The arguments to pass to the Queue test, ex: "-S scala/qscript/examples/HelloWorld.scala" */
-  var args: String = _
+    /** The arguments to pass to the Queue test, ex: "-S scala/qscript/examples/HelloWorld.scala" */
+    var args: String = _
 
-  /** Job Queue to run the test.  Default is null which means use hour. */
-  var jobQueue: String = _
+    /** Job Queue to run the test.  Default is null which means use hour. */
+    var jobQueue: String = _
+    
+    /** Job runners to run the test.  Default is null which means use the default. */
+    var jobRunners: Seq[String] = _
 
-  /** Job runners to run the test.  Default is null which means use the default. */
-  var jobRunners: Seq[String] = _
+    /** VariantEval validations to run on a VCF after the pipeline has completed. */
+    var evalSpec: PipelineTestEvalSpec = _
 
-  /** Expected MD5 results for each file path. */
-  var fileMD5s = Map.empty[String, String]
+    /** Expected exception from the test. */
+    var expectedException: Class[_ <: Exception] = null
 
-  /** VariantEval validations to run on a VCF after the pipeline has completed. */
-  var evalSpec: PipelineTestEvalSpec = _
+    /** If true will check the MD5s without failing. */
+    var parameterize = false
+}
 
-  /** Expected exception from the test. */
-  var expectedException: Class[_ <: Exception] = null
+case class PipelineTestSpec() extends GeneralPipelineTestSpec {
+    /** Expected MD5 results for each file path. */
+    var fileMD5s: Map[String, String] = Map.empty[String, String]
 
-  /** If true will check the MD5s without failing. */
-  var parameterize = false
+    def this(args: String, fileMD5s: Traversable[(String, String)]) = {
+        this()
+        this.args = args
+        this.fileMD5s = fileMD5s.toMap
+    }
 
-  def this(args: String, fileMD5s: Traversable[(String, String)]) = {
-    this()
-    this.args = args
-    this.fileMD5s = fileMD5s.toMap
-  }
+    def this(args: String, expectedException: Class[_ <: Exception]) = {
+        this()
+        this.args = args
+        this.expectedException = expectedException
+    }
+}
 
-  def this(args: String, expectedException: Class[_ <: Exception]) = {
-    this()
-    this.args = args
-    this.expectedException = expectedException
-  }
+case class MultipleOutcomeTestSpec() extends GeneralPipelineTestSpec {
+
+    var fileMD5s = Map.empty[String, Seq[String]]
+
 }
