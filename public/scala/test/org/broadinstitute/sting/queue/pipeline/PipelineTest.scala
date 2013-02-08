@@ -141,7 +141,7 @@ object PipelineTest extends BaseTest with Logging {
 
         }
                 
-        // The method should recive one file at the time, and one of the md5sums should match this.
+        // The method should receive one file at the time, and one of the md5sums should match this.
         if (matches == 0 && !parameterize && failed != 0) {
             println("NOTE: This multiple outcome test did not find any matching md5s, and will therefore fail.")
             Assert.fail("%d of %d MD5s did not match".format(failed, fileMD5s.size))
