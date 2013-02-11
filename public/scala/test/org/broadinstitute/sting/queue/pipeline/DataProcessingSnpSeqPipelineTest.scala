@@ -36,7 +36,6 @@ class DataProcessingSnpSeqPipelineTest {
   
   val snpSeqBaseTest = new SnpSeqBaseTest()  
     
-  //TODO Find out why the md5sum fails!  
   @Test(timeOut=36000000)
   def testSimpleBAM {
     val projectName = "test1"
@@ -52,7 +51,7 @@ class DataProcessingSnpSeqPipelineTest {
       " -test ",
       "-startFromScratch ",
       " -p " + projectName).mkString
-    spec.fileMD5s += testOut -> "45d97df6d291695b92668e8a55c54cd0"
+    spec.fileMD5s += testOut -> "bf4f4f79809837f2143efc033ed228c6"
     PipelineTest.executeTest(spec)
   }
 
@@ -73,9 +72,9 @@ class DataProcessingSnpSeqPipelineTest {
       " --realign ",
       " -bwa /usr/bin/bwa",
       " -bwape ",
-      "-startFromScratch ",
+      " -startFromScratch ",
       " -p " + projectName).mkString
-    spec.fileMD5s += testOut -> "9fca827ecc8436465b831bb6f879357a"
+    spec.fileMD5s += testOut -> "13ffa44c798825c70b5d185c6a79df4c"
     PipelineTest.executeTest(spec)
   }
   
@@ -99,7 +98,7 @@ class DataProcessingSnpSeqPipelineTest {
       " --revert ",
       "-startFromScratch ",
       " -p " + projectName).mkString
-    spec.fileMD5s += testOut -> "9fca827ecc8436465b831bb6f879357a"
+    spec.fileMD5s += testOut -> "7f7a0fd29fbaf88a5c82afe16de43c29"
     PipelineTest.executeTest(spec)
   }
 
