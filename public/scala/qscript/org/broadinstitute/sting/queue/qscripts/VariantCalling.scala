@@ -48,6 +48,9 @@ class NewVariantCalling extends QScript {
     @Input(doc = "an intervals file to be used by GATK - output bams at intervals only", fullName = "gatk_interval_file", shortName = "intervals", required = false)
     var intervals: File = _
 
+    @Argument(doc = "the -L interval string to be used by GATK - output bams at interval only", fullName = "gatk_interval_string", shortName = "L", required = false)
+    var intervalString: String = ""
+
     @Argument(doc = "Run the analysis for each bam file seperatly. By default all samples will be analyzed together", fullName = "analyze_separatly", shortName = "analyzeSeparatly", required = false)
     var runSeparatly = false
 
@@ -81,7 +84,7 @@ class NewVariantCalling extends QScript {
 
     @Argument(doc = "Number of threads to use in thread enabled walkers. Default: 1", fullName = "nbr_of_threads", shortName = "nt", required = false)
     var nbrOfThreads: Int = 1
-    
+
     @Argument(doc = "Downsample fraction. [0.0 - 1.0]", fullName = "downsample_to_fraction", shortName = "dtf", required = false)
     var downsampleFraction: Double = -1
 
@@ -168,9 +171,9 @@ class NewVariantCalling extends QScript {
 
         val targets = if (!runSeparatly)
             Seq(new Target(projectName, reference, Resources.dbsnp, Resources.hapmap, input, Resources.mills, intervals, isLowpass, isExome, bams.size))
-        else{
-            bams.map(bam => new Target(bam.getName(), reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, 1))            
-            }
+        else {
+            bams.map(bam => new Target(bam.getName(), reference, Resources.dbsnp, Resources.hapmap, bam, Resources.mills, intervals, isLowpass, isExome, 1))
+        }
 
         for (target <- targets) {
             if (!skipCalling) {
@@ -194,7 +197,7 @@ class NewVariantCalling extends QScript {
     trait UNIVERSAL_GATK_ARGS extends CommandLineGATK {
         logging_level = "DEBUG"
         this.memoryLimit = 24
-        
+
         //TODO Add this when migrating to xml setup for all the scripts
         //this.jobNativeArgs +:= "-p node -A " + projId
     }
@@ -203,16 +206,17 @@ class NewVariantCalling extends QScript {
 
     // 1.) Unified Genotyper Base
     class GenotyperBase(t: Target) extends UnifiedGenotyper with UNIVERSAL_GATK_ARGS {
-        
-        if(downsampleFraction != -1)
+
+        if (downsampleFraction != -1)
             this.downsample_to_fraction = downsampleFraction
-        else 
+        else
             this.dcov = if (t.isLowpass) { 50 } else { 250 }
 
         this.reference_sequence = t.reference
-        this.intervalsString ++= List(t.intervals)
+        if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
+        else if (qscript.intervals != null) this.intervals :+= qscript.intervals
         this.scatterCount = nContigs
-        this.nt = nbrOfThreads        
+        this.nt = nbrOfThreads
         this.stand_call_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
         this.stand_emit_conf = if (t.isLowpass) { 4.0 } else { 30.0 }
         this.input_file :+= t.bamList
@@ -245,7 +249,8 @@ class NewVariantCalling extends QScript {
     // 2.) Hard Filtering for indels
     class indelFilter(t: Target) extends VariantFiltration with UNIVERSAL_GATK_ARGS {
         this.reference_sequence = t.reference
-        this.intervalsString ++= List(t.intervals)
+        if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
+        else if (qscript.intervals != null) this.intervals :+= qscript.intervals
         this.scatterCount = nContigs
         this.V = t.rawIndelVCF
         this.out = t.filteredIndelVCF
@@ -264,7 +269,8 @@ class NewVariantCalling extends QScript {
     class VQSRBase(t: Target) extends VariantRecalibrator with UNIVERSAL_GATK_ARGS {
         this.nt = nbrOfThreads
         this.reference_sequence = t.reference
-        this.intervalsString ++= List(t.intervals)
+        if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
+        else if (qscript.intervals != null) this.intervals :+= qscript.intervals
         this.allPoly = true
         this.tranche ++= List("100.0", "99.9", "99.5", "99.3", "99.0", "98.9", "98.8", "98.5", "98.4", "98.3", "98.2", "98.1", "98.0", "97.9", "97.8", "97.5", "97.0", "95.0", "90.0")
     }
@@ -333,7 +339,8 @@ class NewVariantCalling extends QScript {
     // 4.) Apply the recalibration table to the appropriate tranches
     class applyVQSRBase(t: Target) extends ApplyRecalibration with UNIVERSAL_GATK_ARGS {
         this.reference_sequence = t.reference
-        this.intervalsString ++= List(t.intervals)
+        if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
+        else if (qscript.intervals != null) this.intervals :+= qscript.intervals
     }
 
     class snpCut(t: Target) extends applyVQSRBase(t) {
@@ -368,7 +375,8 @@ class NewVariantCalling extends QScript {
         this.comp :+= new TaggedFile(t.hapmapFile, "hapmap")
         this.D = new File(t.dbsnpFile)
         this.reference_sequence = t.reference
-        this.intervalsString ++= List(t.intervals)
+        if (!qscript.intervalString.isEmpty) this.intervalsString ++= Seq(qscript.intervalString)
+        else if (qscript.intervals != null) this.intervals :+= qscript.intervals
         this.sample = samples
     }
 
