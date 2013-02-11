@@ -55,7 +55,6 @@ class DataProcessingSnpSeqPipelineTest {
     PipelineTest.executeTest(spec)
   }
 
-  //TODO Find out why the md5sum fails!
   @Test(timeOut=36000000)
   def testBWAPEBAM {
     val projectName = "test2"
@@ -78,7 +77,6 @@ class DataProcessingSnpSeqPipelineTest {
     PipelineTest.executeTest(spec)
   }
   
-    //TODO Find out why the md5sum fails!
   @Test
   def testBWAPEBAMWithRevert {
     val projectName = "test2"
