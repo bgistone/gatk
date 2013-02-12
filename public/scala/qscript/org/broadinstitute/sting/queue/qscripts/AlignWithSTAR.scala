@@ -166,6 +166,9 @@ class AlignWithSTAR extends QScript {
         this.isIntermediate = false
     }
 
+    def sortAndIndex(alignedBam: File): String = " | " + samtoolsPath + " view -Su - | " + samtoolsPath + " sort - " + alignedBam.getAbsoluteFile().replace(".bam", "") + ";" +
+    samtoolsPath + " index " + alignedBam.getAbsoluteFile()
+    
     case class star(fastq1: File, fastq2: File, sampleOutputDir: File, reference: File, outputFile: File, intermediate: Boolean) extends CommandLineFunction with ExternalCommonArgs {
 
         // Sometime this should be kept, sometimes it shouldn't
@@ -176,13 +179,12 @@ class AlignWithSTAR extends QScript {
         @Input var dir = sampleOutputDir
         @Input var ref = reference
 
-        @Output var stdOut = outputFile
+        @Output var out = outputFile
         
         val readFilesCommand = if(file1.endsWith(".gz")) " --readFilesCommand zcat " else ""
-
-        //./STAR --genomeDir STAR_Genomes/ --readFilesIn 1.fastq.gz 2.fastq.gz --readFilesCommand zcat --outStd SAM
+        
         def commandLine = starPath + " --genomeDir " + ref + " --readFilesIn " + file1 + " " + file2 +
             readFilesCommand + " --outStd SAM --outFileNamePrefix " + sampleOutputDir +
-            " --runThreadN " + threads + " | " + samtoolsPath + " view -bS - >" + outputFile
+            " --runThreadN " + threads + sortAndIndex(out)
     }
 }
