@@ -65,7 +65,7 @@ class AlignWithTophat extends QScript {
         sampleDir.mkdirs()
         var alignedBamFile: File = new File(sampleDir + "/" + "accepted_hits.bam")
 
-        val placeHolderFile = File.createTempFile("temporaryLogFile", ".txt")
+        val placeHolderFile = new File(sampleDir + "/qscript_tophap.stdout.log")
 
         val fastq1stMate = fastqs.map(container => container.mate1)         
         val fastq2ndMate = fastqs.map(container => container.mate2)
